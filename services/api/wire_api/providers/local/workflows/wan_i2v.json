@@ -1,0 +1,26 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": { "image": "{{init_image}}" }
+  },
+  "2": {
+    "class_type": "WanImageToVideo",
+    "inputs": {
+      "positive_prompt": "{{prompt}}",
+      "negative_prompt": "static, frozen, watermark, low quality",
+      "num_frames": "{{frames}}",
+      "seed": "{{seed}}",
+      "image": ["1", 0]
+    }
+  },
+  "3": {
+    "class_type": "VHS_VideoCombine",
+    "inputs": {
+      "frame_rate": 16,
+      "loop_count": 0,
+      "filename_prefix": "wire_video",
+      "format": "video/h264-mp4",
+      "images": ["2", 0]
+    }
+  }
+}
