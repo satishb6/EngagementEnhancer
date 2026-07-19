@@ -1,0 +1,82 @@
+[project]
+name = "wire-api"
+version = "0.1.0"
+description = "WIRE — news-to-content engine API"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30",
+    "alembic>=1.14",
+    "pgvector>=0.3.6",
+    "celery[redis]>=5.4",
+    "redis>=5.2",
+    "httpx>=0.28",
+    "structlog>=24.4",
+    "uuid-utils>=0.10",
+    "numpy>=2.1",
+    "feedparser>=6.0.11",
+    "beautifulsoup4>=4.12",
+    "readability-lxml>=0.8.1",
+    "lxml[html-clean]>=5.3",
+    "cryptography>=44.0",
+    "stripe>=11.4",
+    "python-multipart>=0.0.18",
+    "sse-starlette>=2.1",
+    "tenacity>=9.0",
+    "orjson>=3.10",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "testcontainers[postgres]>=4.9",
+    "respx>=0.22",
+    "freezegun>=1.5",
+]
+local = [
+    # Local GPU mode extras. Heavy — install only when running LOCAL_MODE=1.
+    "sentence-transformers>=3.3",
+    "faster-whisper>=1.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["wire_api"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "ASYNC"]
+ignore = ["B008"]  # FastAPI Depends() in defaults is idiomatic
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+disallow_any_explicit = false
+warn_return_any = true
+exclude = ["alembic/"]
+
+[[tool.mypy.overrides]]
+module = ["feedparser.*", "readability.*", "pgvector.*", "celery.*", "uuid_utils.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+    "integration: needs real Postgres via testcontainers (requires Docker)",
+    "egress: asserts no network calls leave the machine",
+]

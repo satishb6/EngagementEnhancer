@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+.next/
+.turbo/
+.expo/
+*.tsbuildinfo
+.pnpm-store/
+
+# Env & secrets — never commit
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Artifacts & data
+*.log
+storage/
+playwright-report/
+test-results/
+screenshots/
+
+# Local reference material (not part of the product)
+WhatsApp Image*.jpeg
+prompt.txt

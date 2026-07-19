@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WIRE — System Document</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&family=Martian+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --graphite:#12161B;
+  --graphite-2:#171C23;
+  --selenium:#1E262F;
+  --selenium-2:#27313C;
+  --silver:#DAD5C9;
+  --silver-dim:#B5AFA2;
+  --safelight:#FF8A3D;
+  --fixer:#6D64A3;
+  --fixer-hot:#9A8EE0;
+  --spike:#C4453C;
+  --ink:#0C0F13;
+  --rule:rgba(218,213,201,.12);
+  --rule-strong:rgba(218,213,201,.24);
+  --sans:'Instrument Sans',system-ui,sans-serif;
+  --serif:'Instrument Serif',Georgia,serif;
+  --mono:'Martian Mono',ui-monospace,monospace;
+  --maxw:1100px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--graphite);
+  color:var(--silver);
+  font-family:var(--sans);
+  font-size:16px;line-height:1.65;
+  letter-spacing:-.011em;
+  overflow-x:hidden;
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  opacity:.035;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection{background:var(--safelight);color:var(--ink)}
+
+/* ---------- type ---------- */
+h1,h2,h3,h4{font-family:var(--serif);font-weight:400;letter-spacing:-.02em;line-height:1.12}
+h1{font-size:clamp(2.6rem,7vw,4.6rem)}
+h2{font-size:clamp(1.9rem,4.2vw,2.9rem);margin-bottom:.4em}
+h3{font-size:clamp(1.25rem,2.6vw,1.6rem);margin-bottom:.45em}
+h4{font-family:var(--sans);font-weight:600;font-size:1rem;letter-spacing:-.01em;margin-bottom:.4em}
+p{margin-bottom:1.05em;max-width:74ch;color:var(--silver-dim)}
+p strong,li strong{color:var(--silver);font-weight:600}
+a{color:var(--safelight);text-decoration:none;border-bottom:1px solid rgba(255,138,61,.32)}
+a:hover{border-bottom-color:var(--safelight)}
+code{font-family:var(--mono);font-size:.82em;background:rgba(109,100,163,.16);
+  color:var(--fixer-hot);padding:.12em .4em;border-radius:3px}
+.wire{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;
+  text-transform:uppercase;font-weight:400;color:var(--fixer-hot)}
+.wire-dim{color:rgba(218,213,201,.4)}
+.lede{font-size:clamp(1.05rem,2vw,1.28rem);line-height:1.55;color:var(--silver);max-width:66ch}
+
+/* ---------- layout ---------- */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,5vw,40px)}
+section{padding:clamp(64px,10vw,120px) 0;border-top:1px solid var(--rule)}
+section:first-of-type{border-top:none}
+.eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+.eyebrow .num{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;
+  color:var(--safelight);font-weight:600}
+.eyebrow .line{flex:1;height:1px;background:var(--rule)}
+
+/* ---------- nav ---------- */
+nav{position:sticky;top:0;z-index:100;background:rgba(18,22,27,.88);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--rule)}
+nav .wrap{display:flex;align-items:center;gap:22px;height:52px;overflow-x:auto;
+  scrollbar-width:none}
+nav .wrap::-webkit-scrollbar{display:none}
+nav .mark{font-family:var(--mono);font-size:.66rem;letter-spacing:.2em;
+  font-weight:600;color:var(--silver);white-space:nowrap}
+nav a{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(218,213,201,.45);border:none;white-space:nowrap}
+nav a:hover{color:var(--safelight)}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(80px,14vw,150px) 0 clamp(60px,9vw,100px);position:relative}
+.hero-tag{margin-bottom:30px}
+.hero h1{margin-bottom:26px}
+.hero h1 em{font-style:italic;color:var(--safelight)}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:38px}
+.chip{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:7px 12px;border:1px solid var(--rule-strong);
+  border-radius:2px;color:var(--silver-dim)}
+.chip.hot{border-color:rgba(255,138,61,.4);color:var(--safelight)}
+
+/* ---------- print surface ---------- */
+.print{
+  background:var(--silver);color:var(--ink);
+  border-radius:3px;padding:clamp(22px,3.6vw,34px);
+  box-shadow:0 24px 48px -14px rgba(0,0,0,.72);
+  position:relative;overflow:hidden;
+}
+.print::before{content:'';position:absolute;inset:0 0 auto;height:1px;
+  background:rgba(255,255,255,.55)}
+.print p{color:#3A4048}
+.print h3,.print h4{color:var(--ink)}
+.print .wire{color:#6D64A3}
+.print code{background:rgba(109,100,163,.14);color:#4A4270}
+.print a{color:#B0561F;border-bottom-color:rgba(176,86,31,.3)}
+
+/* ---------- chrome card ---------- */
+.card{background:var(--selenium);border:1px solid var(--rule);
+  border-radius:10px;padding:clamp(18px,2.6vw,26px)}
+.card h4{color:var(--silver)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(175px,1fr))}
+
+/* ---------- accent bar ---------- */
+.bar{border-left:2px solid var(--safelight);padding-left:18px;margin:26px 0}
+.bar.machine{border-left-color:var(--fixer)}
+.bar.warn{border-left-color:var(--spike)}
+.bar p:last-child{margin-bottom:0}
+
+/* ---------- table ---------- */
+.tbl-wrap{overflow-x:auto;margin:22px 0;
+  border:1px solid var(--rule);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+th{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;
+  text-transform:uppercase;text-align:left;padding:12px 14px;
+  color:var(--fixer-hot);background:var(--graphite-2);
+  border-bottom:1px solid var(--rule-strong);white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--rule);
+  vertical-align:top;color:var(--silver-dim)}
+tr:last-child td{border-bottom:none}
+td strong{color:var(--silver)}
+td.n{font-family:var(--mono);font-size:.74rem;white-space:nowrap}
+.ok{color:#5FBF8F}.no{color:var(--spike)}.hot{color:var(--safelight)}
+.mch{color:var(--fixer-hot)}
+
+/* ---------- figure ---------- */
+figure{margin:34px 0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-family:var(--mono);font-size:.58rem;letter-spacing:.11em;
+  text-transform:uppercase;color:rgba(218,213,201,.42);margin-top:14px;
+  padding-left:14px;border-left:1px solid var(--rule-strong)}
+.svg-frame{background:var(--graphite-2);border:1px solid var(--rule);
+  border-radius:10px;padding:clamp(14px,2.5vw,26px);overflow-x:auto}
+
+/* ---------- prompt block ---------- */
+.prompt{background:var(--ink);border:1px solid var(--rule);
+  border-radius:8px;margin:18px 0;overflow:hidden}
+.prompt-head{display:flex;align-items:center;gap:10px;padding:10px 16px;
+  background:var(--graphite-2);border-bottom:1px solid var(--rule)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--fixer-hot);flex-shrink:0}
+.prompt pre{padding:16px;overflow-x:auto;font-family:var(--mono);
+  font-size:.68rem;line-height:1.75;color:var(--silver-dim);
+  white-space:pre-wrap;word-break:break-word}
+.prompt pre b{color:var(--safelight);font-weight:400}
+
+/* ---------- lists ---------- */
+ul,ol{margin:0 0 1.05em 1.15em;color:var(--silver-dim);max-width:74ch}
+li{margin-bottom:.5em}
+ul.clean{list-style:none;margin-left:0}
+ul.clean li{padding-left:20px;position:relative}
+ul.clean li::before{content:'';position:absolute;left:0;top:.62em;
+  width:7px;height:1px;background:var(--safelight)}
+
+/* ---------- stat ---------- */
+.stat{padding:16px 0}
+.stat .v{font-family:var(--serif);font-size:clamp(1.7rem,3.6vw,2.4rem);
+  line-height:1;color:var(--silver);display:block;margin-bottom:8px}
+.stat .v.hot{color:var(--safelight)}
+.stat .v.bad{color:var(--spike)}
+.stat .k{font-family:var(--mono);font-size:.56rem;letter-spacing:.11em;
+  text-transform:uppercase;color:rgba(218,213,201,.42)}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0;transform:translateY(16px);
+  transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .rv{opacity:1;transform:none;transition:none}
+}
+
+footer{padding:60px 0 80px;border-top:1px solid var(--rule)}
+hr{border:none;border-top:1px solid var(--rule);margin:34px 0}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <span class="mark">WIRE</span>
+    <a href="#premise">Premise</a>
+    <a href="#arch">Architecture</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#agents">Agents</a>
+    <a href="#learning">Learning</a>
+    <a href="#wireroom">Wire Room</a>
+    <a href="#lattice">Lattice</a>
+    <a href="#stack">Stack</a>
+    <a href="#data">Data</a>
+    <a href="#tiers">Tiers</a>
+    <a href="#risks">Risks</a>
+    <a href="#goals">Goals</a>
+    <a href="#phases">Phases</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-tag wire">System Document · v1 · Internal</div>
+    <h1>Your take on<br>the news, at the<br>speed of a <em>swipe</em>.</h1>
+    <p class="lede">WIRE turns the news you already read into content that sounds like you wrote it — because you did. The machine finds the signal and does the labour. You supply the one thing it can't: an opinion worth reading.</p>
+    <div class="hero-meta">
+      <span class="chip hot">Human-in-the-loop ×2</span>
+      <span class="chip">Shared corpus</span>
+      <span class="chip">Lazy generation</span>
+      <span class="chip">Cloud · BYOK · Local GPU</span>
+      <span class="chip">Fully transparent processing</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ PREMISE ============ -->
+<section id="premise">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">01</span><span class="line"></span><span class="wire wire-dim">The premise</span></div>
+    <h2>What this is</h2>
+    <p class="lede">A news-to-content engine with two deliberate points of human control, built so the expensive parts only run when a person asks for them.</p>
+
+    <div class="grid g3" style="margin-top:38px">
+      <div class="card">
+        <div class="wire" style="margin-bottom:12px">Stage 01 · Machine</div>
+        <h4>It reads everything</h4>
+        <p style="font-size:.9rem;margin:0">Agents pull from the sources you nominate — RSS, Reddit, YouTube, news APIs — then deduplicate, cluster, and compress each story into sixty words with its sources attached.</p>
+      </div>
+      <div class="card" style="border-color:rgba(255,138,61,.3)">
+        <div class="wire" style="margin-bottom:12px;color:var(--safelight)">Stage 02 · You</div>
+        <h4>You sort and you speak</h4>
+        <p style="font-size:.9rem;margin:0">Swipe fifty briefings in a few minutes. On the ones you keep, you add your take — typed, spoken, or picked from three suggestions and edited into your own words.</p>
+      </div>
+      <div class="card">
+        <div class="wire" style="margin-bottom:12px">Stage 03 · Machine</div>
+        <h4>It makes the artefacts</h4>
+        <p style="font-size:.9rem;margin:0">Your take becomes posts, images, memes, and video — several versions, in your voice. You pick from a contact sheet. It publishes on schedule.</p>
+      </div>
+    </div>
+
+    <div class="bar" style="margin-top:44px">
+      <h3 style="font-size:1.35rem">The whole product in one sentence</h3>
+      <p><strong>Compression is automatable. Opinion is not.</strong> Everything WIRE does is either compressing information down to where a human can act on it, or expanding a human decision back out into artefacts. The two moments in the middle — the swipe and the take — are the product.</p>
+    </div>
+
+    <h3 style="margin-top:56px">Three architectural commitments</h3>
+    <p>These aren't preferences. Break any one and the business stops working.</p>
+
+    <div class="grid g3" style="margin-top:24px">
+      <div class="card">
+        <span class="wire">Commitment 01</span>
+        <h4 style="margin-top:10px">Shared corpus</h4>
+        <p style="font-size:.88rem;margin:0">Ingestion, deduplication, and summarisation happen <strong>once per news event</strong>, never once per user. Personalisation is a ranking pass over a shared pool. If two users following AI news cause two summarisation calls, that's a bug, and at scale it's a fatal one.</p>
+      </div>
+      <div class="card">
+        <span class="wire">Commitment 02</span>
+        <h4 style="margin-top:10px">Lazy generation</h4>
+        <p style="font-size:.88rem;margin:0">Text and images generate automatically. <strong>Video never generates without a person asking for it.</strong> There is no code path from a background job to a video API. This is enforced by a test, not by discipline.</p>
+      </div>
+      <div class="card">
+        <span class="wire">Commitment 03</span>
+        <h4 style="margin-top:10px">Total transparency</h4>
+        <p style="font-size:.88rem;margin:0">Every backend operation emits a trace event, and every trace event is visible in the interface. Users spending their own API credits or their own GPU cycles get to watch exactly what is happening and what it costs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section id="arch">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">02</span><span class="line"></span><span class="wire wire-dim">Architecture</span></div>
+    <h2>System architecture</h2>
+    <p class="lede">Six layers. The one that matters most is the provider router — it's what makes cloud, bring-your-own-key, and local GPU the same code path.</p>
+
+    <figure>
+      <div class="svg-frame">
+      <svg viewBox="0 0 1020 760" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="System architecture diagram">
+        <defs>
+          <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L9,4.5 L0,9 z" fill="#6D64A3"/>
+          </marker>
+          <marker id="ao" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L9,4.5 L0,9 z" fill="#FF8A3D"/>
+          </marker>
+          <style>
+            .bx{fill:#1E262F;stroke:rgba(218,213,201,.2);stroke-width:1;rx:7}
+            .bx-h{fill:#241D1B;stroke:rgba(255,138,61,.45);stroke-width:1.2;rx:7}
+            .bx-d{fill:#171C23;stroke:rgba(109,100,163,.4);stroke-width:1;rx:7}
+            .band{fill:none;stroke:rgba(218,213,201,.1);stroke-width:1;stroke-dasharray:3 5;rx:10}
+            .t{font-family:'Instrument Sans',sans-serif;font-size:12.5px;fill:#DAD5C9}
+            .ts{font-family:'Instrument Sans',sans-serif;font-size:10px;fill:rgba(218,213,201,.5)}
+            .m{font-family:'Martian Mono',monospace;font-size:8px;letter-spacing:1.4px;fill:#9A8EE0}
+            .mo{font-family:'Martian Mono',monospace;font-size:8px;letter-spacing:1.4px;fill:#FF8A3D}
+            .ln{stroke:#6D64A3;stroke-width:1.3;fill:none;marker-end:url(#ah)}
+            .lno{stroke:#FF8A3D;stroke-width:1.5;fill:none;marker-end:url(#ao)}
+            .lnd{stroke:rgba(109,100,163,.5);stroke-width:1;fill:none;stroke-dasharray:3 4}
+          </style>
+        </defs>
+
+        <!-- BAND: CLIENTS -->
+        <rect class="band" x="20" y="16" width="800" height="76"/>
+        <text class="m" x="34" y="36">CLIENT</text>
+        <rect class="bx" x="130" y="30" width="180" height="48"/>
+        <text class="t" x="220" y="50" text-anchor="middle">Mobile · Expo RN</text>
+        <text class="ts" x="220" y="66" text-anchor="middle">Reanimated · Skia · R3F</text>
+        <rect class="bx" x="330" y="30" width="180" height="48"/>
+        <text class="t" x="420" y="50" text-anchor="middle">Web · Next.js 15</text>
+        <text class="ts" x="420" y="66" text-anchor="middle">Wire Room · Lattice</text>
+        <rect class="bx-h" x="530" y="30" width="270" height="48"/>
+        <text class="t" x="665" y="50" text-anchor="middle">Human-in-the-loop surfaces</text>
+        <text class="ts" x="665" y="66" text-anchor="middle">Deck · Take capture · Contact sheet</text>
+
+        <!-- BAND: API -->
+        <rect class="band" x="20" y="112" width="800" height="66"/>
+        <text class="m" x="34" y="132">API</text>
+        <rect class="bx" x="130" y="124" width="670" height="44"/>
+        <text class="t" x="465" y="142" text-anchor="middle">FastAPI · REST + Server-Sent Events</text>
+        <text class="ts" x="465" y="158" text-anchor="middle">Auth · rate limits · entitlement gate · Zod/Pydantic boundary validation</text>
+
+        <!-- BAND: SERVICES -->
+        <rect class="band" x="20" y="198" width="800" height="150"/>
+        <text class="m" x="34" y="218">SERVICES</text>
+        <rect class="bx" x="130" y="212" width="152" height="58"/>
+        <text class="t" x="206" y="236" text-anchor="middle">Corpus</text>
+        <text class="ts" x="206" y="252" text-anchor="middle">dedup · cluster · brief</text>
+        <rect class="bx" x="294" y="212" width="152" height="58"/>
+        <text class="t" x="370" y="236" text-anchor="middle">Ranking</text>
+        <text class="ts" x="370" y="252" text-anchor="middle">MMR · diversity caps</text>
+        <rect class="bx-h" x="458" y="212" width="152" height="58"/>
+        <text class="t" x="534" y="236" text-anchor="middle">Learning</text>
+        <text class="ts" x="534" y="252" text-anchor="middle">4 loops · voice profile</text>
+        <rect class="bx" x="622" y="212" width="178" height="58"/>
+        <text class="t" x="711" y="236" text-anchor="middle">Generation orchestrator</text>
+        <text class="ts" x="711" y="252" text-anchor="middle">tiered · durable · idempotent</text>
+
+        <rect class="bx" x="130" y="282" width="216" height="52"/>
+        <text class="t" x="238" y="303" text-anchor="middle">Billing &amp; entitlements</text>
+        <text class="ts" x="238" y="319" text-anchor="middle">ledger · credits · BYOK caps</text>
+        <rect class="bx" x="358" y="282" width="216" height="52"/>
+        <text class="t" x="466" y="303" text-anchor="middle">Publishing</text>
+        <text class="ts" x="466" y="319" text-anchor="middle">OAuth · schedule · rate limit</text>
+        <rect class="bx" x="586" y="282" width="214" height="52"/>
+        <text class="t" x="693" y="303" text-anchor="middle">Ingestion workers</text>
+        <text class="ts" x="693" y="319" text-anchor="middle">Celery beat · quota guards</text>
+
+        <!-- BAND: PROVIDER ROUTER -->
+        <rect class="band" x="20" y="368" width="800" height="120"/>
+        <text class="m" x="34" y="388">PROVIDERS</text>
+        <rect class="bx-h" x="130" y="380" width="670" height="42"/>
+        <text class="t" x="465" y="399" text-anchor="middle">Provider Router — the swap point</text>
+        <text class="ts" x="465" y="414" text-anchor="middle">resolve(capability, user) · estimate_cost() · circuit breaker · contract-tested adapters</text>
+
+        <rect class="bx-d" x="130" y="434" width="210" height="44"/>
+        <text class="t" x="235" y="452" text-anchor="middle">Cloud (platform)</text>
+        <text class="ts" x="235" y="467" text-anchor="middle">Anthropic · fal · Deepgram</text>
+        <rect class="bx-d" x="352" y="434" width="210" height="44"/>
+        <text class="t" x="457" y="452" text-anchor="middle">Cloud (BYOK)</text>
+        <text class="ts" x="457" y="467" text-anchor="middle">user keys · daily cap</text>
+        <rect class="bx-d" x="574" y="434" width="226" height="44"/>
+        <text class="t" x="687" y="452" text-anchor="middle">Local GPU</text>
+        <text class="ts" x="687" y="467" text-anchor="middle">Ollama · ComfyUI · Whisper</text>
+
+        <!-- BAND: DATA -->
+        <rect class="band" x="20" y="508" width="800" height="76"/>
+        <text class="m" x="34" y="528">DATA</text>
+        <rect class="bx" x="130" y="522" width="210" height="48"/>
+        <text class="t" x="235" y="542" text-anchor="middle">Postgres 16 + pgvector</text>
+        <text class="ts" x="235" y="558" text-anchor="middle">corpus · users · ledger · HNSW</text>
+        <rect class="bx" x="352" y="522" width="210" height="48"/>
+        <text class="t" x="457" y="542" text-anchor="middle">Redis</text>
+        <text class="ts" x="457" y="558" text-anchor="middle">queue · pub/sub · quota counters</text>
+        <rect class="bx" x="574" y="522" width="226" height="48"/>
+        <text class="t" x="687" y="542" text-anchor="middle">Object storage</text>
+        <text class="ts" x="687" y="558" text-anchor="middle">artefacts · TTL by tier</text>
+
+        <!-- EXTERNAL IN -->
+        <rect class="bx-d" x="852" y="212" width="148" height="122" rx="7"/>
+        <text class="m" x="926" y="234" text-anchor="middle">SOURCES</text>
+        <text class="ts" x="926" y="256" text-anchor="middle">RSS / Atom</text>
+        <text class="ts" x="926" y="274" text-anchor="middle">Reddit</text>
+        <text class="ts" x="926" y="292" text-anchor="middle">YouTube Data API</text>
+        <text class="ts" x="926" y="310" text-anchor="middle">News APIs</text>
+        <text class="ts" x="926" y="328" text-anchor="middle">Web extraction</text>
+
+        <!-- EXTERNAL OUT -->
+        <rect class="bx-d" x="852" y="380" width="148" height="98" rx="7"/>
+        <text class="m" x="926" y="402" text-anchor="middle">PLATFORMS</text>
+        <text class="ts" x="926" y="424" text-anchor="middle">X · LinkedIn</text>
+        <text class="ts" x="926" y="442" text-anchor="middle">Instagram · TikTok</text>
+        <text class="ts" x="926" y="460" text-anchor="middle">YouTube · Threads</text>
+
+        <!-- TRACE BUS -->
+        <rect x="130" y="608" width="670" height="46" rx="7" fill="#1B1728" stroke="rgba(154,142,224,.5)"/>
+        <text class="t" x="465" y="628" text-anchor="middle">Trace bus — pipeline_event (append-only)</text>
+        <text class="ts" x="465" y="644" text-anchor="middle">every stage · every model call · every cost · streamed to the Wire Room over SSE</text>
+        <text class="m" x="34" y="634">OBSERVE</text>
+
+        <!-- flows -->
+        <path class="ln" d="M465 92 L465 118"/>
+        <path class="ln" d="M465 172 L465 206"/>
+        <path class="ln" d="M711 274 L711 372"/>
+        <path class="ln" d="M235 424 L235 516"/>
+        <path class="ln" d="M457 424 L457 516"/>
+        <path class="ln" d="M687 424 L687 516"/>
+        <path class="ln" d="M850 286 L806 300"/>
+        <path class="lno" d="M806 404 L848 412"/>
+        <!-- trace fan-in -->
+        <path class="lnd" d="M206 274 L206 604"/>
+        <path class="lnd" d="M370 274 L370 604"/>
+        <path class="lnd" d="M534 274 L534 604"/>
+        <path class="lnd" d="M780 424 L790 604"/>
+        <!-- SSE back up -->
+        <path class="lno" d="M110 630 L110 146 L126 146" />
+        <text class="mo" x="60" y="392" transform="rotate(-90 60 392)">SSE → WIRE ROOM</text>
+
+        <!-- human marker -->
+        <circle cx="665" cy="16" r="3.5" fill="#FF8A3D"/>
+        <text class="mo" x="676" y="19">HUMAN CONTROL</text>
+      </svg>
+      </div>
+      <figcaption>Fig. 01 — Layered architecture. Orange marks every point of human agency; violet is machine. The trace bus underneath is not optional infrastructure — it is what the Wire Room renders.</figcaption>
+    </figure>
+
+    <div class="bar machine">
+      <p><strong>Why the provider router is the most important file.</strong> It is a set of Python <code>Protocol</code> classes — TextProvider, EmbeddingProvider, ImageProvider, VideoProvider, AudioProvider — with adapters behind each. Business logic calls <code>router.resolve("image", user)</code> and never knows whether the answer is fal.ai, the user's own OpenAI key, or a ComfyUI instance on their desk. Switching a user to local GPU mode changes zero lines outside that directory, and there's a test that proves it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PIPELINE ============ -->
+<section id="pipeline">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">03</span><span class="line"></span><span class="wire wire-dim">Pipeline</span></div>
+    <h2>The pipeline, end to end</h2>
+    <p class="lede">Eleven stages. Three of them are you. The split between shared and per-user work is where the unit economics live.</p>
+
+    <figure>
+      <div class="svg-frame">
+      <svg viewBox="0 0 1020 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pipeline flow diagram">
+        <defs>
+          <marker id="p1" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#6D64A3"/></marker>
+          <marker id="p2" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#FF8A3D"/></marker>
+          <style>
+            .s{fill:#1E262F;stroke:rgba(109,100,163,.5);stroke-width:1;rx:6}
+            .sh{fill:#241D1B;stroke:#FF8A3D;stroke-width:1.4}
+            .st{font-family:'Martian Mono',monospace;font-size:7.6px;letter-spacing:1px;fill:#DAD5C9}
+            .sub{font-family:'Instrument Sans',sans-serif;font-size:9.5px;fill:rgba(218,213,201,.48)}
+            .cost{font-family:'Martian Mono',monospace;font-size:7.4px;letter-spacing:.8px;fill:#9A8EE0}
+            .costh{fill:#FF8A3D}
+            .f{stroke:#6D64A3;stroke-width:1.4;fill:none;marker-end:url(#p1)}
+            .fh{stroke:#FF8A3D;stroke-width:1.6;fill:none;marker-end:url(#p2)}
+            .zone{fill:none;stroke-width:1;stroke-dasharray:4 5;rx:9}
+            .zl{font-family:'Martian Mono',monospace;font-size:8px;letter-spacing:1.6px}
+          </style>
+        </defs>
+
+        <!-- ZONE A: shared -->
+        <rect class="zone" x="16" y="60" width="516" height="120" stroke="rgba(109,100,163,.45)"/>
+        <text class="zl" x="26" y="50" fill="#9A8EE0">SHARED CORPUS — RUNS ONCE FOR ALL USERS</text>
+        <text class="sub" x="26" y="196">Cost is fixed. Adding 10,000 users does not add a single summarisation call.</text>
+
+        <!-- ZONE B: per user -->
+        <rect class="zone" x="548" y="60" width="456" height="120" stroke="rgba(255,138,61,.4)"/>
+        <text class="zl" x="558" y="50" fill="#FF8A3D">PER USER — RANKING + HUMAN JUDGEMENT</text>
+
+        <!-- ZONE C -->
+        <rect class="zone" x="16" y="270" width="988" height="120" stroke="rgba(255,138,61,.4)"/>
+        <text class="zl" x="26" y="260" fill="#FF8A3D">PER SELECTION — GATED BY TIER AND BY HUMAN ACTION</text>
+
+        <!-- row 1 -->
+        <rect class="s" x="30" y="82" width="88" height="52"/>
+        <text class="st" x="74" y="104" text-anchor="middle">FETCH</text>
+        <text class="sub" x="74" y="120" text-anchor="middle">adapters</text>
+        <text class="cost" x="74" y="152" text-anchor="middle">~$0</text>
+
+        <rect class="s" x="142" y="82" width="88" height="52"/>
+        <text class="st" x="186" y="104" text-anchor="middle">EMBED</text>
+        <text class="sub" x="186" y="120" text-anchor="middle">batch 64</text>
+        <text class="cost" x="186" y="152" text-anchor="middle">$0.0001/item</text>
+
+        <rect class="s" x="254" y="82" width="88" height="52"/>
+        <text class="st" x="298" y="104" text-anchor="middle">CLUSTER</text>
+        <text class="sub" x="298" y="120" text-anchor="middle">cos &gt; 0.86</text>
+        <text class="cost" x="298" y="152" text-anchor="middle">$0 · CPU</text>
+
+        <rect class="s" x="366" y="82" width="88" height="52"/>
+        <text class="st" x="410" y="104" text-anchor="middle">BRIEF</text>
+        <text class="sub" x="410" y="120" text-anchor="middle">60 words</text>
+        <text class="cost" x="410" y="152" text-anchor="middle">$0.001/cluster</text>
+
+        <rect class="s" x="466" y="82" width="54" height="52"/>
+        <text class="st" x="493" y="104" text-anchor="middle">POOL</text>
+        <text class="sub" x="493" y="120" text-anchor="middle">~500/d</text>
+
+        <rect class="s" x="562" y="82" width="88" height="52"/>
+        <text class="st" x="606" y="104" text-anchor="middle">RANK</text>
+        <text class="sub" x="606" y="120" text-anchor="middle">MMR + vector</text>
+        <text class="cost" x="606" y="152" text-anchor="middle">$0 · CPU</text>
+
+        <rect class="s sh" x="674" y="82" width="98" height="52" rx="26"/>
+        <text class="st" x="723" y="104" text-anchor="middle">SWIPE</text>
+        <text class="sub" x="723" y="120" text-anchor="middle">50 cards</text>
+        <text class="cost costh" x="723" y="152" text-anchor="middle">HUMAN</text>
+
+        <rect class="s sh" x="796" y="82" width="98" height="52" rx="26"/>
+        <text class="st" x="845" y="104" text-anchor="middle">TAKE</text>
+        <text class="sub" x="845" y="120" text-anchor="middle">your opinion</text>
+        <text class="cost costh" x="845" y="152" text-anchor="middle">HUMAN</text>
+
+        <rect class="s" x="918" y="82" width="72" height="52"/>
+        <text class="st" x="954" y="104" text-anchor="middle">VOICE</text>
+        <text class="sub" x="954" y="120" text-anchor="middle">retrieve k=5</text>
+
+        <!-- arrows row1 -->
+        <path class="f" d="M118 108 L138 108"/>
+        <path class="f" d="M230 108 L250 108"/>
+        <path class="f" d="M342 108 L362 108"/>
+        <path class="f" d="M454 108 L462 108"/>
+        <path class="f" d="M520 108 L558 108"/>
+        <path class="fh" d="M650 108 L670 108"/>
+        <path class="fh" d="M772 108 L792 108"/>
+        <path class="fh" d="M894 108 L914 108"/>
+
+        <!-- connector down -->
+        <path class="fh" d="M954 138 L954 200 L60 200 L60 288" stroke-dasharray="0"/>
+
+        <!-- row 2 -->
+        <rect class="s" x="30" y="292" width="112" height="54"/>
+        <text class="st" x="86" y="314" text-anchor="middle">TEXT ×3</text>
+        <text class="sub" x="86" y="330" text-anchor="middle">eager</text>
+        <text class="cost" x="86" y="364" text-anchor="middle">$0.01</text>
+
+        <rect class="s" x="162" y="292" width="112" height="54"/>
+        <text class="st" x="218" y="314" text-anchor="middle">IMAGE ×3</text>
+        <text class="sub" x="218" y="330" text-anchor="middle">eager</text>
+        <text class="cost" x="218" y="364" text-anchor="middle">$0.12</text>
+
+        <rect class="s" x="294" y="292" width="112" height="54"/>
+        <text class="st" x="350" y="314" text-anchor="middle">GIF ×3</text>
+        <text class="sub" x="350" y="330" text-anchor="middle">ffmpeg, local</text>
+        <text class="cost" x="350" y="364" text-anchor="middle">$0.00</text>
+
+        <rect class="s" x="426" y="292" width="124" height="54" stroke="rgba(196,69,60,.55)"/>
+        <text class="st" x="488" y="314" text-anchor="middle">SHORT VIDEO</text>
+        <text class="sub" x="488" y="330" text-anchor="middle">on demand only</text>
+        <text class="cost" x="488" y="364" text-anchor="middle" fill="#C4453C">$2.00 · GATED</text>
+
+        <rect class="s" x="570" y="292" width="124" height="54" stroke="rgba(196,69,60,.55)"/>
+        <text class="st" x="632" y="314" text-anchor="middle">LONG VIDEO</text>
+        <text class="sub" x="632" y="330" text-anchor="middle">confirm dialog</text>
+        <text class="cost" x="632" y="364" text-anchor="middle" fill="#C4453C">$18+ · GATED</text>
+
+        <rect class="s sh" x="722" y="292" width="120" height="54" rx="27"/>
+        <text class="st" x="782" y="314" text-anchor="middle">PICK</text>
+        <text class="sub" x="782" y="330" text-anchor="middle">contact sheet</text>
+        <text class="cost costh" x="782" y="364" text-anchor="middle">HUMAN</text>
+
+        <rect class="s" x="866" y="292" width="124" height="54"/>
+        <text class="st" x="928" y="314" text-anchor="middle">PUBLISH</text>
+        <text class="sub" x="928" y="330" text-anchor="middle">scheduled</text>
+        <text class="cost" x="928" y="364" text-anchor="middle">$0.10</text>
+
+        <path class="f" d="M142 318 L158 318"/>
+        <path class="f" d="M274 318 L290 318"/>
+        <path class="f" d="M406 318 L422 318"/>
+        <path class="f" d="M550 318 L566 318"/>
+        <path class="fh" d="M694 318 L718 318"/>
+        <path class="fh" d="M842 318 L862 318"/>
+
+        <!-- learning return -->
+        <path d="M928 350 L928 424 L723 424" stroke="#FF8A3D" stroke-width="1.4" fill="none" stroke-dasharray="4 4" marker-end="url(#p2)"/>
+        <text class="zl" x="740" y="444" fill="#FF8A3D">ENGAGEMENT → LEARNING LOOPS 1–4</text>
+      </svg>
+      </div>
+      <figcaption>Fig. 02 — Pipeline with cost annotations. Note that the entire left half runs once regardless of user count, and everything red-outlined requires an explicit human action to execute.</figcaption>
+    </figure>
+
+    <div class="grid g4" style="margin-top:8px">
+      <div class="stat"><span class="v">~500</span><span class="k">Briefings written per day, total</span></div>
+      <div class="stat"><span class="v hot">50</span><span class="k">Shown per user, ranked</span></div>
+      <div class="stat"><span class="v">$0.13</span><span class="k">Eager cost per selection</span></div>
+      <div class="stat"><span class="v bad">$18+</span><span class="k">Long video — never automatic</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AGENTS ============ -->
+<section id="agents">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">04</span><span class="line"></span><span class="wire wire-dim">Agents</span></div>
+    <h2>Nine agents</h2>
+    <p class="lede">Named for the newsroom they replace. Six are LLM-driven; three are deterministic workers that happen to sit in the same pipeline. Each has one job and hands off cleanly.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Agent</th><th>Job</th><th>In → Out</th><th>Model tier</th><th>Cost / run</th>
+        </tr></thead>
+        <tbody>
+          <tr><td><strong>Scout</strong></td><td>Pull from nominated sources, respect quotas, hash-dedupe at fetch</td><td>source config → raw items</td><td class="n">none</td><td class="n">$0</td></tr>
+          <tr><td><strong>Cartographer</strong></td><td>Embed, cluster by cosine similarity, maintain centroids</td><td>raw items → clusters</td><td class="n">embedding</td><td class="n">$0.0001/item</td></tr>
+          <tr><td><strong>Editor</strong></td><td>Compress a cluster into a neutral 60-word briefing with sources</td><td>cluster → briefing</td><td class="n mch">small LLM</td><td class="n">$0.001</td></tr>
+          <tr><td><strong>Curator</strong></td><td>Rank the shared pool per user, enforce diversity caps</td><td>pool + vector → feed</td><td class="n">none · CPU</td><td class="n">$0</td></tr>
+          <tr><td><strong>Provocateur</strong></td><td>Propose three genuinely opposed takes the user might hold</td><td>briefing + history → 3 stances</td><td class="n mch">small LLM</td><td class="n">$0.002</td></tr>
+          <tr><td><strong>Stenographer</strong></td><td>Maintain the user's voice profile from everything they write</td><td>takes → style profile</td><td class="n mch">small LLM + stats</td><td class="n">$0.001</td></tr>
+          <tr><td><strong>Composer</strong></td><td>Turn briefing + take into platform-shaped content variants</td><td>take → text / image prompts</td><td class="n mch">large LLM</td><td class="n">$0.01</td></tr>
+          <tr><td><strong>Director</strong></td><td>Convert a take into a shot list for image-to-video</td><td>take → shots + motion prompts</td><td class="n mch">large LLM</td><td class="n">$0.02 <span class="hot">+ render</span></td></tr>
+          <tr><td><strong>Herald</strong></td><td>Schedule, publish, rate-limit, track status</td><td>artefact → publication</td><td class="n">none</td><td class="n">$0.10</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-top:56px">The prompts</h3>
+    <p>These are the actual system prompts, not summaries. The constraints in them are load-bearing — most were written in response to a specific failure mode.</p>
+
+    <div class="prompt">
+      <div class="prompt-head"><span class="dot"></span><span class="wire">Agent · EDITOR</span></div>
+<pre><b>ROLE</b>
+You are the Editor. You compress a cluster of reports about one event into a
+single neutral briefing.
+
+<b>INPUT</b>
+A cluster of 1–12 reports on the same event. Each has title, body, source
+domain, published_at.
+
+<b>OUTPUT</b> — strict JSON, nothing outside it
+{"headline": str, "body": str, "confidence": "high"|"medium"|"low",
+ "claims": [{"text": str, "source_index": int}]}
+
+<b>RULES</b>
+- headline: 8 words maximum. No colons. No question marks. No "here's why" or
+  "what it means" constructions. State the event.
+- body: 50–60 words. Hard ceiling of 60. Count them before returning.
+- Neutral to the point of dullness. No adjective that carries judgement —
+  devastating, groundbreaking, controversial, stunning, historic. No adverbs
+  of degree.
+- Where reports disagree, say so plainly: "Reports differ on X."
+- Every factual claim must appear in at least one source. Where only one source
+  of several makes a claim, attribute it inline: "According to &lt;domain&gt;, ..."
+- No speculation about implications. No "could mean", no "signals that".
+- confidence is "low" when sources materially conflict or only one exists.
+
+<b>THE TEST</b>
+The person reading this briefing will either agree with it, disagree with it,
+or mock it. Your output must support all three equally well without
+pre-loading any of them. If your briefing already contains an opinion, you have
+taken the user's job.</pre>
+    </div>
+
+    <div class="prompt">
+      <div class="prompt-head"><span class="dot"></span><span class="wire">Agent · PROVOCATEUR</span></div>
+<pre><b>ROLE</b>
+You are the Provocateur. Given a briefing and what you know about this person,
+propose three positions they might plausibly hold.
+
+<b>INPUT</b>
+briefing, style_profile, similar_past_takes (k=5), stance_history
+
+<b>OUTPUT</b> — JSON array of exactly three
+[{"stance": "SKEPTICAL"|"OPTIMISTIC"|"CONTRARIAN"|"PERSONAL"|"TECHNICAL"|"CYNICAL",
+  "text": str}]
+
+<b>RULES</b>
+- One or two sentences each. First person. No hedging preamble.
+- Match their register from style_profile: sentence length, vocabulary,
+  whether they swear, whether they ask questions, whether they use dashes.
+- The three must be genuinely opposed. If one person could hold two of them
+  simultaneously without contradiction, rewrite one.
+- At least one should be uncomfortable to post. Three safe positions is a
+  failed generation.
+- Never summarise the briefing back. A take that restates is not a take.
+- If stance_history shows consistent skepticism in this topic region, lead with
+  skeptical — but still include one position they would argue against.
+
+<b>THE TEST</b>
+This person should be able to tap one, change four words, and post it. If they
+have to rewrite it from scratch, you have failed and the whole product's
+friction budget is blown.</pre>
+    </div>
+
+    <div class="prompt">
+      <div class="prompt-head"><span class="dot"></span><span class="wire">Agent · COMPOSER</span></div>
+<pre><b>ROLE</b>
+You are the Composer. You turn one briefing plus one human take into
+publishable content.
+
+<b>INPUT</b>
+briefing, take (with source: authored|suggested), style_profile,
+target_platform, content_type, variant_index (0–2), format_history
+
+<b>INVARIANTS</b>
+- The take is the thesis. The briefing is evidence. Never invert this.
+- Write as them, not about them. First person, their vocabulary.
+- Never soften the take. If it is sharp, it stays sharp. Your job is
+  amplification, not moderation.
+- Each variant_index must differ structurally, not in wording:
+    0  direct    — lead with the take, evidence after
+    1  narrative — lead with the fact, land on the take
+    2  oblique   — analogy, joke, or reframe; the take arrives sideways
+- Respect platform limits exactly. X: 280 including the link. LinkedIn: the
+  first 200 characters carry it. Write to the limit, never past it.
+- Include the primary source link where the platform supports it.
+
+<b>NEVER</b>
+- Open with "In a world where" or any variant of it
+- Use: game-changer, delve, landscape, testament, underscores, deep dive,
+  it's not just X it's Y
+- Add hashtags unless format_history shows this audience responds to them
+- End with an engagement-bait question unless the take is genuinely a question
+- Use an em-dash-heavy rhythm that reads as machine-written
+
+<b>THE TEST</b>
+Paste this next to three things the user actually wrote. If a stranger can pick
+yours out, rewrite it.</pre>
+    </div>
+
+    <div class="prompt">
+      <div class="prompt-head"><span class="dot"></span><span class="wire">Agent · DIRECTOR</span></div>
+<pre><b>ROLE</b>
+You are the Director. You convert a take into a shot list that an
+image-to-video pipeline can execute.
+
+<b>OUTPUT</b> — JSON
+{"duration_s": int,
+ "shots": [{"index": int, "image_prompt": str, "motion_prompt": str,
+            "duration_s": float, "on_screen_text": str|null}],
+ "voiceover": str|null}
+
+<b>RULES</b>
+- Each shot is 3–5 seconds. Short form ≤30s total. Long form ≤180s.
+- image_prompt describes ONE STILL FRAME: subject, composition, lighting, lens,
+  style. No motion verbs — this generates a static image.
+- motion_prompt describes only what moves and how the camera behaves, assuming
+  the image_prompt frame is frame one.
+- Repeat the subject description VERBATIM across shots. Character consistency
+  in these models comes from literal repetition, not from pronouns.
+- Shot 1 must earn the next three seconds. No slow establishing shots.
+- on_screen_text: 7 words maximum, and only where the visual cannot carry it.
+- Never depict real identifiable people. Use role descriptions.
+
+<b>COST DISCIPLINE</b>
+State total_seconds in your response. The orchestrator multiplies it by the
+provider rate and shows the user a figure before anything renders. An
+over-long shot list is a real charge to a real person.</pre>
+    </div>
+
+    <div class="prompt">
+      <div class="prompt-head"><span class="dot"></span><span class="wire">Agent · STENOGRAPHER</span></div>
+<pre><b>ROLE</b>
+You are the Stenographer. You maintain a description of how this person writes,
+updated every time they author or edit a take.
+
+<b>INPUT</b>
+new_take, previous_profile, last_50_authored_takes
+
+<b>OUTPUT</b> — JSON
+{"sentence_length_mean": float, "sentence_length_sd": float,
+ "register": "formal"|"conversational"|"blunt"|"playful",
+ "hedging_ratio": float, "profanity": bool, "question_frequency": float,
+ "signature_constructions": [str], "avoided_words": [str],
+ "stance_distribution": {stance: float}, "sample_sentences": [str]}
+
+<b>RULES</b>
+- signature_constructions: phrasings they actually reuse. Quote them.
+- avoided_words: words that appear in suggestions they consistently edit OUT.
+  This list is more valuable than anything else here — it is how the system
+  learns what they would never say.
+- sample_sentences: five real sentences they wrote, chosen for range not
+  quality. These become few-shot examples downstream.
+- Update incrementally. Do not let a single unusual take swing the profile;
+  weight new evidence at 0.15.
+- Never infer demographics, politics, or identity. Style only. If you find
+  yourself describing the person rather than the prose, stop.</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LEARNING ============ -->
+<section id="learning">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">05</span><span class="line"></span><span class="wire wire-dim">Learning</span></div>
+    <h2>Four learning loops</h2>
+    <p class="lede">Every human-in-the-loop moment is a training signal. Nothing a user does is thrown away — the swipe teaches taste, the take teaches voice, the pick teaches format, the post teaches timing.</p>
+
+    <figure>
+      <div class="svg-frame">
+      <svg viewBox="0 0 1020 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four learning loops diagram">
+        <defs>
+          <marker id="l1" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#FF8A3D"/></marker>
+          <marker id="l2" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#6D64A3"/></marker>
+          <style>
+            .hb{fill:#241D1B;stroke:#FF8A3D;stroke-width:1.3;rx:24}
+            .mb{fill:#1E262F;stroke:rgba(109,100,163,.55);stroke-width:1;rx:6}
+            .eb{fill:#1B1728;stroke:rgba(154,142,224,.5);stroke-width:1;rx:6}
+            .lt{font-family:'Martian Mono',monospace;font-size:8px;letter-spacing:1.2px;fill:#DAD5C9}
+            .lo{fill:#FF8A3D}
+            .ls{font-family:'Instrument Sans',sans-serif;font-size:10px;fill:rgba(218,213,201,.5)}
+            .lh{font-family:'Instrument Serif',serif;font-size:15px;fill:#DAD5C9}
+            .a1{stroke:#FF8A3D;stroke-width:1.5;fill:none;marker-end:url(#l1)}
+            .a2{stroke:#6D64A3;stroke-width:1.4;fill:none;marker-end:url(#l2)}
+            .hdr{font-family:'Martian Mono',monospace;font-size:7.6px;letter-spacing:1.6px;fill:rgba(218,213,201,.4)}
+          </style>
+        </defs>
+
+        <text class="hdr" x="90" y="26" text-anchor="middle">HUMAN SIGNAL</text>
+        <text class="hdr" x="400" y="26" text-anchor="middle">WHAT IT UPDATES</text>
+        <text class="hdr" x="770" y="26" text-anchor="middle">WHAT CHANGES FOR THE USER</text>
+        <line x1="20" y1="38" x2="1000" y2="38" stroke="rgba(218,213,201,.12)"/>
+
+        <!-- LOOP 1 -->
+        <text class="lh" x="20" y="72">01</text>
+        <rect class="hb" x="20" y="84" width="150" height="46"/>
+        <text class="lt lo" x="95" y="103" text-anchor="middle">SWIPE</text>
+        <text class="ls" x="95" y="119" text-anchor="middle">+ dwell, source taps</text>
+        <rect class="mb" x="256" y="84" width="290" height="46"/>
+        <text class="lt" x="401" y="103" text-anchor="middle">TASTE — interest vector</text>
+        <text class="ls" x="401" y="119" text-anchor="middle">global + per-region weights · asymmetric lr</text>
+        <rect class="eb" x="632" y="84" width="290" height="46"/>
+        <text class="lt" x="777" y="103" text-anchor="middle">Feed ranking</text>
+        <text class="ls" x="777" y="119" text-anchor="middle">tomorrow's 50 are closer to what you keep</text>
+        <path class="a1" d="M170 107 L252 107"/>
+        <path class="a2" d="M546 107 L628 107"/>
+
+        <!-- LOOP 2 -->
+        <text class="lh" x="20" y="180">02</text>
+        <rect class="hb" x="20" y="192" width="150" height="46"/>
+        <text class="lt lo" x="95" y="211" text-anchor="middle">TAKE</text>
+        <text class="ls" x="95" y="227" text-anchor="middle">written or edited</text>
+        <rect class="mb" x="256" y="192" width="290" height="46"/>
+        <text class="lt" x="401" y="211" text-anchor="middle">VOICE — style profile + RAG</text>
+        <text class="ls" x="401" y="227" text-anchor="middle">retrieval over past takes · no fine-tuning</text>
+        <rect class="eb" x="632" y="192" width="290" height="46"/>
+        <text class="lt" x="777" y="211" text-anchor="middle">Suggestions sound like you</text>
+        <text class="ls" x="777" y="227" text-anchor="middle">works from take #3 · edit distance falls</text>
+        <path class="a1" d="M170 215 L252 215"/>
+        <path class="a2" d="M546 215 L628 215"/>
+
+        <!-- LOOP 3 -->
+        <text class="lh" x="20" y="288">03</text>
+        <rect class="hb" x="20" y="300" width="150" height="46"/>
+        <text class="lt lo" x="95" y="319" text-anchor="middle">PICK</text>
+        <text class="ls" x="95" y="335" text-anchor="middle">+ real engagement</text>
+        <rect class="mb" x="256" y="300" width="290" height="46"/>
+        <text class="lt" x="401" y="319" text-anchor="middle">FORMAT — success matrix</text>
+        <text class="ls" x="401" y="335" text-anchor="middle">topic × type × platform · Bayesian smoothed</text>
+        <rect class="eb" x="632" y="300" width="290" height="46"/>
+        <text class="lt" x="777" y="319" text-anchor="middle">Contact sheet reshapes</text>
+        <text class="ls" x="777" y="335" text-anchor="middle">memes on tech, explainers on policy</text>
+        <path class="a1" d="M170 323 L252 323"/>
+        <path class="a2" d="M546 323 L628 323"/>
+
+        <!-- LOOP 4 -->
+        <text class="lh" x="20" y="396">04</text>
+        <rect class="hb" x="20" y="408" width="150" height="46"/>
+        <text class="lt lo" x="95" y="427" text-anchor="middle">PUBLISH</text>
+        <text class="ls" x="95" y="443" text-anchor="middle">time + response</text>
+        <rect class="mb" x="256" y="408" width="290" height="46"/>
+        <text class="lt" x="401" y="427" text-anchor="middle">TIMING — engagement curve</text>
+        <text class="ls" x="401" y="443" text-anchor="middle">per platform, per weekday, hourly</text>
+        <rect class="eb" x="632" y="408" width="290" height="46"/>
+        <text class="lt" x="777" y="427" text-anchor="middle">Schedule suggestions</text>
+        <text class="ls" x="777" y="443" text-anchor="middle">slots marked on the timeline</text>
+        <path class="a1" d="M170 431 L252 431"/>
+        <path class="a2" d="M546 431 L628 431"/>
+
+        <!-- metric -->
+        <rect x="20" y="486" width="902" height="52" rx="7" fill="#241D1B" stroke="rgba(255,138,61,.5)"/>
+        <text class="lt lo" x="44" y="508">THE METRIC</text>
+        <text class="ls" x="44" y="526" style="font-size:11px;fill:#DAD5C9">Median edit distance between a suggested take and what the user actually posts. It should fall week over week. Shown on the dashboard as "voice match %".</text>
+      </svg>
+      </div>
+      <figcaption>Fig. 03 — Four independent loops, each resettable. Loop 2 is the moat: nobody else has this user's corpus of authored opinions.</figcaption>
+    </figure>
+
+    <div class="grid g2">
+      <div class="card">
+        <span class="wire">Design choice</span>
+        <h4 style="margin-top:10px">Retrieval, not fine-tuning</h4>
+        <p style="font-size:.9rem;margin:0">Voice personalisation is retrieval-augmented: store each authored take with its embedding, retrieve the five most semantically similar at generation time, inject as few-shot examples alongside the style profile. This works from the third take, costs nothing extra, needs no training infrastructure, and is instantly resettable. LoRA is an upgrade path, not a starting point.</p>
+      </div>
+      <div class="card">
+        <span class="wire">Design choice</span>
+        <h4 style="margin-top:10px">Every update is explainable</h4>
+        <p style="font-size:.9rem;margin:0">Each learning update logs the human action that caused it. A user can tap any briefing in their feed and ask why it's there, and get a real answer — "you kept four stories about semiconductor policy this week" — rather than a shrug. In a product built on personalisation, unexplainable ranking is a trust failure.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WIRE ROOM ============ -->
+<section id="wireroom">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">06</span><span class="line"></span><span class="wire wire-dim">Signature build I</span></div>
+    <h2>The Wire Room</h2>
+    <p class="lede">Every backend process, visible and live. Not a log viewer — a signal-flow diagram where real work physically moves between stages, every node inspectable, every cost accruing in front of you.</p>
+
+    <div class="bar">
+      <p><strong>Why this exists.</strong> A user on BYOK is spending their own API credits. A user in local mode is spending their own GPU cycles and electricity. A user on the paid tier is spending credits they bought. In all three cases, hiding the machine is a trust failure — and in the first two it's close to negligent. The Wire Room makes opacity structurally impossible.</p>
+    </div>
+
+    <figure>
+      <div class="svg-frame">
+      <svg viewBox="0 0 1020 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Wire Room interface mockup">
+        <defs>
+          <style>
+            .wn{fill:#1E262F;stroke:rgba(109,100,163,.55);stroke-width:1;rx:6}
+            .wnh{fill:#241D1B;stroke:#FF8A3D;stroke-width:1.4}
+            .wna{fill:#251F3A;stroke:#9A8EE0;stroke-width:1.4;rx:6}
+            .wl{font-family:'Martian Mono',monospace;font-size:7.4px;letter-spacing:1.1px;fill:#DAD5C9}
+            .wc{font-family:'Martian Mono',monospace;font-size:9px;fill:#9A8EE0}
+            .wch{fill:#FF8A3D}
+            .ws{font-family:'Instrument Sans',sans-serif;font-size:9px;fill:rgba(218,213,201,.45)}
+            .conn{stroke:rgba(109,100,163,.45);stroke-width:1}
+            .meter-bg{fill:#171C23;rx:2}
+            .panel{fill:#DAD5C9;rx:3}
+            .pt{font-family:'Martian Mono',monospace;font-size:7px;letter-spacing:.9px;fill:#4A4270}
+            .pb{font-family:'Instrument Sans',sans-serif;font-size:9px;fill:#3A4048}
+          </style>
+        </defs>
+
+        <!-- METERS -->
+        <text class="wl" x="20" y="22" fill="rgba(218,213,201,.4)">QUOTA &amp; BUDGET</text>
+        <rect class="meter-bg" x="20" y="32" width="180" height="6"/>
+        <rect x="20" y="32" width="126" height="6" rx="2" fill="#FF8A3D"/>
+        <text class="ws" x="20" y="52">YouTube units · 7,010 / 10,000</text>
+
+        <rect class="meter-bg" x="240" y="32" width="180" height="6"/>
+        <rect x="240" y="32" width="41" height="6" rx="2" fill="#6D64A3"/>
+        <text class="ws" x="240" y="52">X API spend today · $2.30</text>
+
+        <rect class="meter-bg" x="460" y="32" width="180" height="6"/>
+        <rect x="460" y="32" width="94" height="6" rx="2" fill="#6D64A3"/>
+        <text class="ws" x="460" y="52">Credits burned · 388 / 725</text>
+
+        <rect class="meter-bg" x="680" y="32" width="180" height="6"/>
+        <rect x="680" y="32" width="147" height="6" rx="2" fill="#9A8EE0"/>
+        <text class="ws" x="680" y="52">VRAM · 19.6 / 24 GB · queue 3</text>
+
+        <line x1="20" y1="70" x2="1000" y2="70" stroke="rgba(218,213,201,.12)"/>
+
+        <!-- FLOW -->
+        <text class="wl" x="20" y="98" fill="rgba(218,213,201,.4)">LIVE PIPELINE</text>
+
+        <rect class="wn" x="20" y="112" width="92" height="52"/>
+        <text class="wl" x="66" y="132" text-anchor="middle">FETCH</text>
+        <text class="wc" x="66" y="150" text-anchor="middle">412</text>
+
+        <rect class="wn" x="140" y="112" width="92" height="52"/>
+        <text class="wl" x="186" y="132" text-anchor="middle">EMBED</text>
+        <text class="wc" x="186" y="150" text-anchor="middle">412</text>
+
+        <rect class="wn" x="260" y="112" width="92" height="52"/>
+        <text class="wl" x="306" y="132" text-anchor="middle">CLUSTER</text>
+        <text class="wc" x="306" y="150" text-anchor="middle">58</text>
+
+        <rect class="wn wna" x="380" y="112" width="92" height="52"/>
+        <text class="wl" x="426" y="132" text-anchor="middle">BRIEF</text>
+        <text class="wc" x="426" y="150" text-anchor="middle">41 / 58</text>
+
+        <rect class="wn" x="500" y="112" width="92" height="52"/>
+        <text class="wl" x="546" y="132" text-anchor="middle">RANK</text>
+        <text class="wc" x="546" y="150" text-anchor="middle">50</text>
+
+        <rect class="wn wnh" x="620" y="112" width="92" height="52" rx="26"/>
+        <text class="wl" x="666" y="132" text-anchor="middle" fill="#FF8A3D">YOU</text>
+        <text class="wc wch" x="666" y="150" text-anchor="middle">17 / 50</text>
+
+        <rect class="wn wna" x="740" y="112" width="92" height="52"/>
+        <text class="wl" x="786" y="132" text-anchor="middle">GENERATE</text>
+        <text class="wc" x="786" y="150" text-anchor="middle">3 running</text>
+
+        <rect class="wn" x="860" y="112" width="92" height="52"/>
+        <text class="wl" x="906" y="132" text-anchor="middle">PUBLISH</text>
+        <text class="wc" x="906" y="150" text-anchor="middle">2 queued</text>
+
+        <!-- connectors + particles -->
+        <line class="conn" x1="112" y1="138" x2="140" y2="138"/>
+        <circle cx="122" cy="138" r="2" fill="#9A8EE0"/><circle cx="131" cy="138" r="2" fill="#9A8EE0"/>
+        <line class="conn" x1="232" y1="138" x2="260" y2="138"/>
+        <circle cx="243" cy="138" r="2" fill="#9A8EE0"/>
+        <line class="conn" x1="352" y1="138" x2="380" y2="138"/>
+        <circle cx="362" cy="138" r="2" fill="#9A8EE0"/><circle cx="371" cy="138" r="2" fill="#9A8EE0"/>
+        <line class="conn" x1="472" y1="138" x2="500" y2="138"/>
+        <line class="conn" x1="592" y1="138" x2="620" y2="138" stroke="rgba(255,138,61,.5)"/>
+        <line class="conn" x1="712" y1="138" x2="740" y2="138" stroke="rgba(255,138,61,.5)"/>
+        <circle cx="723" cy="138" r="2" fill="#FF8A3D"/>
+        <line class="conn" x1="832" y1="138" x2="860" y2="138"/>
+
+        <text class="ws" x="426" y="182" text-anchor="middle">active</text>
+        <text class="ws" x="786" y="182" text-anchor="middle">active</text>
+
+        <line x1="20" y1="204" x2="1000" y2="204" stroke="rgba(218,213,201,.12)"/>
+
+        <!-- INSPECTION PANEL -->
+        <text class="wl" x="20" y="230" fill="rgba(218,213,201,.4)">STAGE · BRIEF — LAST EVENTS</text>
+        <rect class="panel" x="20" y="242" width="600" height="196"/>
+
+        <text class="pt" x="36" y="264">14:22:07.412   EDITOR   claude-haiku-4.5   cluster_8f2a</text>
+        <text class="pb" x="36" y="280">"Fed holds rates, signals two cuts in 2026" — 57 words, confidence high</text>
+        <text class="pt" x="36" y="296">1,840 in · 96 out · 1.21s · $0.0011   ▸ prompt   ▸ response</text>
+        <line x1="36" y1="308" x2="604" y2="308" stroke="rgba(12,15,19,.12)"/>
+
+        <text class="pt" x="36" y="330">14:22:06.118   EDITOR   claude-haiku-4.5   cluster_3c91</text>
+        <text class="pb" x="36" y="346">"Anthropic opens Bengaluru office" — 54 words, confidence high</text>
+        <text class="pt" x="36" y="362">1,102 in · 88 out · 0.94s · $0.0008   ▸ prompt   ▸ response</text>
+        <line x1="36" y1="374" x2="604" y2="374" stroke="rgba(12,15,19,.12)"/>
+
+        <text class="pt" x="36" y="396">14:22:04.905   EDITOR   claude-haiku-4.5   cluster_77d0</text>
+        <text class="pb" x="36" y="412" fill="#C4453C">RETRY 1/2 — body 68 words, over ceiling</text>
+        <text class="pt" x="36" y="428">2,010 in · 141 out · 1.44s · $0.0014</text>
+
+        <!-- TRACE FOLLOW -->
+        <rect x="644" y="242" width="356" height="196" rx="6" fill="#1E262F" stroke="rgba(218,213,201,.18)"/>
+        <text class="wl" x="664" y="266">FOLLOW ONE ITEM</text>
+        <text class="ws" x="664" y="286">trace_id 01J8F2A9…</text>
+
+        <circle cx="672" cy="308" r="3" fill="#9A8EE0"/>
+        <text class="ws" x="686" y="311">fetch · reuters.com · 0.42s</text>
+        <line x1="672" y1="311" x2="672" y2="326" stroke="rgba(154,142,224,.4)"/>
+        <circle cx="672" cy="329" r="3" fill="#9A8EE0"/>
+        <text class="ws" x="686" y="332">embed · 0.08s · $0.0001</text>
+        <line x1="672" y1="332" x2="672" y2="347" stroke="rgba(154,142,224,.4)"/>
+        <circle cx="672" cy="350" r="3" fill="#9A8EE0"/>
+        <text class="ws" x="686" y="353">cluster · joined 8f2a · sim 0.91</text>
+        <line x1="672" y1="353" x2="672" y2="368" stroke="rgba(154,142,224,.4)"/>
+        <circle cx="672" cy="371" r="3" fill="#9A8EE0"/>
+        <text class="ws" x="686" y="374">brief · 1.21s · $0.0011</text>
+        <line x1="672" y1="374" x2="672" y2="389" stroke="rgba(255,138,61,.5)"/>
+        <circle cx="672" cy="392" r="3.5" fill="#FF8A3D"/>
+        <text class="ws" x="686" y="395" fill="#FF8A3D">rank · position 6 of 50</text>
+        <line x1="672" y1="395" x2="672" y2="410" stroke="rgba(255,138,61,.5)"/>
+        <circle cx="672" cy="413" r="3.5" fill="#FF8A3D"/>
+        <text class="ws" x="686" y="416" fill="#FF8A3D">awaiting your swipe</text>
+      </svg>
+      </div>
+      <figcaption>Fig. 04 — Wire Room. Meters top, live flow centre, inspection below. Particles are real items in transit; when nothing is running, nothing moves.</figcaption>
+    </figure>
+
+    <h3 style="margin-top:44px">The architectural consequence</h3>
+    <p>This screen cannot be retrofitted. It renders <code>pipeline_event</code>, an append-only table every backend operation writes to via a <code>@traced</code> decorator, streamed to the client over Server-Sent Events with Redis pub/sub behind it so workers on other machines still reach the browser. That spine ships in <strong>Phase 1</strong>, before the pipeline it observes. Building the pipeline first and adding observability later produces a Wire Room with holes in it, and the holes are always in the parts that matter.</p>
+
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card"><span class="wire">Retention</span><h4 style="margin-top:10px">7 days full</h4><p style="font-size:.88rem;margin:0">Prompts and responses are the expensive part of the payload. Keep them a week, then drop the text and retain metrics forever.</p></div>
+      <div class="card"><span class="wire">Redaction</span><h4 style="margin-top:10px">Keys never enter</h4><p style="font-size:.88rem;margin:0">A test asserts that any payload containing an API-key-shaped string is rejected at write time. Transparency stops at credentials.</p></div>
+      <div class="card"><span class="wire">Aggregates</span><h4 style="margin-top:10px">Never scan raw</h4><p style="font-size:.88rem;margin:0">Meters read a summary endpoint. Scanning the event log to draw a progress bar is how observability becomes the load problem.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LATTICE ============ -->
+<section id="lattice">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">07</span><span class="line"></span><span class="wire wire-dim">Signature build II</span></div>
+    <h2>The Lattice</h2>
+    <p class="lede">A 3D knowledge graph of everything you've read and everything you've said about it. Named for the silver halide crystal lattice in film emulsion — the structure on which an image forms when light strikes it. Your interests are the lattice. The news is the light.</p>
+
+    <div class="bar">
+      <p><strong>Why this graph earns its place.</strong> Three reasons, and it needs all three. <strong>One:</strong> the data already exists — every briefing carries an embedding computed for deduplication and ranking, so the graph projects a structure the system maintains anyway. Nothing is fabricated to fill space. <strong>Two:</strong> it is the proof that personalisation works. The hardest thing to communicate about a learning system is that it is learning; a map of your own taste visibly densifying week over week does it without a line of copy. <strong>Three:</strong> it is a control surface. You act on it — boost a region, mute a region, and your feed changes.</p>
+    </div>
+
+    <figure>
+      <div class="svg-frame">
+      <svg viewBox="0 0 1020 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The Lattice knowledge graph">
+        <defs>
+          <radialGradient id="glowO"><stop offset="0%" stop-color="#FF8A3D" stop-opacity=".55"/><stop offset="100%" stop-color="#FF8A3D" stop-opacity="0"/></radialGradient>
+          <radialGradient id="glowV"><stop offset="0%" stop-color="#9A8EE0" stop-opacity=".3"/><stop offset="100%" stop-color="#9A8EE0" stop-opacity="0"/></radialGradient>
+          <style>
+            .ed{stroke:rgba(109,100,163,.32);stroke-width:.8;fill:none}
+            .ed2{stroke:rgba(255,138,61,.4);stroke-width:1.2;fill:none}
+            .nd{fill:#4A4370;stroke:rgba(154,142,224,.5);stroke-width:.8}
+            .ndx{fill:#FF8A3D;stroke:rgba(255,200,150,.6);stroke-width:1}
+            .rl{font-family:'Martian Mono',monospace;font-size:7.4px;letter-spacing:1.2px;fill:rgba(218,213,201,.62)}
+            .lg{font-family:'Instrument Sans',sans-serif;font-size:10px;fill:rgba(218,213,201,.5)}
+            .lgt{font-family:'Martian Mono',monospace;font-size:7.4px;letter-spacing:1.2px;fill:#DAD5C9}
+          </style>
+        </defs>
+
+        <rect x="0" y="0" width="1020" height="500" fill="#0E1116" rx="8"/>
+
+        <!-- region glows -->
+        <circle cx="290" cy="180" r="120" fill="url(#glowO)"/>
+        <circle cx="640" cy="300" r="105" fill="url(#glowV)"/>
+        <circle cx="820" cy="130" r="80" fill="url(#glowV)"/>
+
+        <!-- edges -->
+        <g class="ed">
+          <path d="M290 180 L215 122"/><path d="M290 180 L360 118"/><path d="M290 180 L212 238"/>
+          <path d="M290 180 L368 232"/><path d="M290 180 L258 268"/><path d="M290 180 L340 268"/>
+          <path d="M215 122 L360 118"/><path d="M212 238 L258 268"/><path d="M368 232 L340 268"/>
+          <path d="M640 300 L570 250"/><path d="M640 300 L710 248"/><path d="M640 300 L580 356"/>
+          <path d="M640 300 L706 358"/><path d="M640 300 L640 380"/><path d="M570 250 L710 248"/>
+          <path d="M820 130 L760 90"/><path d="M820 130 L880 92"/><path d="M820 130 L868 182"/>
+          <path d="M820 130 L768 186"/><path d="M760 90 L880 92"/>
+          <path d="M368 232 L570 250"/><path d="M360 118 L760 90"/><path d="M706 358 L868 182"/>
+          <path d="M290 180 L640 300" stroke-dasharray="3 5"/>
+          <path d="M640 300 L820 130" stroke-dasharray="3 5"/>
+        </g>
+        <g class="ed2">
+          <path d="M290 180 L215 122"/><path d="M290 180 L212 238"/><path d="M290 180 L340 268"/>
+        </g>
+
+        <!-- nodes: region -->
+        <circle class="ndx" cx="290" cy="180" r="15"/>
+        <circle class="nd" cx="640" cy="300" r="13"/>
+        <circle class="nd" cx="820" cy="130" r="11"/>
+
+        <!-- exposed briefings -->
+        <circle class="ndx" cx="215" cy="122" r="6.5"/>
+        <circle class="ndx" cx="212" cy="238" r="6"/>
+        <circle class="ndx" cx="340" cy="268" r="5.5"/>
+        <circle class="ndx" cx="570" cy="250" r="5"/>
+
+        <!-- unexposed -->
+        <circle class="nd" cx="360" cy="118" r="5"/>
+        <circle class="nd" cx="368" cy="232" r="4.5"/>
+        <circle class="nd" cx="258" cy="268" r="4"/>
+        <circle class="nd" cx="710" cy="248" r="4.5"/>
+        <circle class="nd" cx="580" cy="356" r="4"/>
+        <circle class="nd" cx="706" cy="358" r="4.5"/>
+        <circle class="nd" cx="640" cy="380" r="3.5"/>
+        <circle class="nd" cx="760" cy="90" r="4"/>
+        <circle class="nd" cx="880" cy="92" r="4"/>
+        <circle class="nd" cx="868" cy="182" r="4.5"/>
+        <circle class="nd" cx="768" cy="186" r="3.5"/>
+
+        <!-- region labels -->
+        <text class="rl" x="290" y="212" text-anchor="middle" fill="#FF8A3D">AI POLICY · 34</text>
+        <text class="rl" x="640" y="330" text-anchor="middle">SEMICONDUCTORS · 19</text>
+        <text class="rl" x="820" y="158" text-anchor="middle">CLIMATE TECH · 11</text>
+
+        <!-- legend -->
+        <rect x="20" y="392" width="380" height="90" rx="6" fill="#151A21" stroke="rgba(218,213,201,.14)"/>
+        <text class="lgt" x="38" y="414">LEGEND</text>
+        <circle cx="44" cy="434" r="6" fill="#FF8A3D"/>
+        <text class="lg" x="58" y="437">Exposed — you wrote a take on it</text>
+        <circle cx="44" cy="456" r="6" fill="#4A4370" stroke="rgba(154,142,224,.5)"/>
+        <text class="lg" x="58" y="459">Unexposed — surfaced, not acted on</text>
+        <line x1="228" y1="434" x2="256" y2="434" stroke="rgba(109,100,163,.5)" stroke-width="1.4"/>
+        <text class="lg" x="264" y="437">Semantic similarity</text>
+        <text class="lg" x="228" y="459">Size = engagement · Dim = age</text>
+
+        <!-- timeline scrub -->
+        <rect x="430" y="440" width="570" height="34" rx="17" fill="#151A21" stroke="rgba(218,213,201,.14)"/>
+        <line x1="452" y1="457" x2="978" y2="457" stroke="rgba(218,213,201,.18)" stroke-width="2"/>
+        <line x1="452" y1="457" x2="856" y2="457" stroke="#FF8A3D" stroke-width="2"/>
+        <circle cx="856" cy="457" r="7" fill="#FF8A3D"/>
+        <text class="rl" x="452" y="432">DAY 1</text>
+        <text class="rl" x="978" y="432" text-anchor="end">TODAY</text>
+        <text class="rl" x="856" y="432" text-anchor="middle" fill="#FF8A3D">WEEK 6</text>
+
+        <!-- inspector hint -->
+        <rect x="430" y="392" width="570" height="34" rx="6" fill="#DAD5C9"/>
+        <text x="452" y="408" font-family="'Martian Mono',monospace" font-size="7" letter-spacing=".9" fill="#4A4270">TAP A NODE</text>
+        <text x="452" y="420" font-family="'Instrument Sans',sans-serif" font-size="9.5" fill="#3A4048">briefing · your take · what you published · how it performed</text>
+      </svg>
+      </div>
+      <figcaption>Fig. 05 — The Lattice. Node positions come from a cached 3D UMAP projection of real briefing embeddings, seeding a force layout. Proximity means semantic proximity — this is a map, not a screensaver.</figcaption>
+    </figure>
+
+    <div class="grid g2" style="margin-top:30px">
+      <div class="card">
+        <span class="wire">Look and feel</span>
+        <h4 style="margin-top:10px">Ported, not reinvented</h4>
+        <p style="font-size:.88rem;margin:0">The visual language comes from the neural-map section of an existing portfolio project — same material approach, same bloom character, same camera behaviour, same easing. Claude Code's first task in this phase is to read that repo and write <code>LATTICE-REFERENCE.md</code> documenting the exact parameters that produce the feel, before writing a line of new code. The palette adapts to WIRE's tokens while preserving the reference's luminance relationships.</p>
+      </div>
+      <div class="card">
+        <span class="wire">Performance budget</span>
+        <h4 style="margin-top:10px">2,000 / 500 nodes at 60fps</h4>
+        <p style="font-size:.88rem;margin:0"><code>InstancedMesh</code> for nodes, one merged <code>BufferGeometry</code> for all edges, LOD by camera distance, frustum culling. Above budget, the least-engaged nodes collapse into region aggregates rather than dropping frames. Reduced-motion and low-power devices fall back to a static 2D projection with identical colour semantics and identical tap targets — never a blank state.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:44px">The demo moment</h3>
+    <p>Drag the timeline scrub back to day one and release. The lattice collapses to a handful of dim crystals and grows forward through your history — nodes appearing, edges forming, regions exposing to orange as you start writing takes. <strong>This is the thing a user shows another person.</strong> Build it properly.</p>
+  </div>
+</section>
+
+<!-- ============ STACK ============ -->
+<section id="stack">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">08</span><span class="line"></span><span class="wire wire-dim">Technology</span></div>
+    <h2>Stack, and why</h2>
+    <p class="lede">Python on the backend because the local-GPU path is Python-native. Everything else follows from that.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Layer</th><th>Choice</th><th>Reason</th><th>What it rules out</th></tr></thead>
+        <tbody>
+          <tr><td class="n">API</td><td><strong>FastAPI · Python 3.12</strong><br><span style="font-size:.82rem">Pydantic v2, SQLAlchemy 2.0 async</span></td><td>Ollama, ComfyUI, faster-whisper, sentence-transformers are all Python-first. A Node API means a second language at the exact boundary that matters most.</td><td>Node/NestJS</td></tr>
+          <tr><td class="n">Database</td><td><strong>Postgres 16 + pgvector</strong><br><span style="font-size:.82rem">HNSW indexes</span></td><td>Relational data and vectors in one system with real transactions. A separate vector DB means distributed writes and a consistency problem you don't need at this size.</td><td>Pinecone, Weaviate</td></tr>
+          <tr><td class="n">Queue</td><td><strong>Celery + Redis</strong><br><span style="font-size:.82rem">Temporal as upgrade path</span></td><td>Generation is multi-minute and fails. Celery is enough for one builder; move the generation workflows to Temporal when partial-failure handling gets painful, not before.</td><td>raw asyncio tasks</td></tr>
+          <tr><td class="n">Mobile</td><td><strong>Expo SDK 52 · React Native</strong><br><span style="font-size:.82rem">Reanimated 3, Gesture Handler, Skia, R3F</span></td><td>The swipe deck needs gesture work on the UI thread and the contact sheet needs real 2D drawing. Reanimated and Skia give both. R3F via expo-gl covers the 3D.</td><td>Flutter, native</td></tr>
+          <tr><td class="n">Web</td><td><strong>Next.js 15 App Router</strong><br><span style="font-size:.82rem">Tailwind, Framer Motion, R3F</span></td><td>Wire Room and Lattice want a big screen. Shares tokens with mobile through a single package.</td><td>—</td></tr>
+          <tr><td class="n">Models · cloud</td><td><strong>Anthropic · fal.ai · Deepgram</strong></td><td>fal covers image and video behind one API with webhooks. Small models for briefing, large for composition — the split is most of the cost control.</td><td>single-vendor lock-in</td></tr>
+          <tr><td class="n">Models · local</td><td><strong>Ollama · ComfyUI · faster-whisper</strong><br><span style="font-size:.82rem">Wan 2.2 / HunyuanVideo for video</span></td><td>Ollama for text is one HTTP call. ComfyUI covers image and video with parameterised workflow JSON. Both behind the same provider protocols.</td><td>—</td></tr>
+          <tr><td class="n">Publishing</td><td><strong>Unified social API</strong><br><span style="font-size:.82rem">adapter-wrapped, swappable</span></td><td>Per-profile pricing dominates cost at scale, so the vendor sits behind an interface from day one. Eight native integrations is eight ongoing maintenance burdens.</td><td>direct platform APIs</td></tr>
+          <tr><td class="n">Storage</td><td><strong>S3-compatible</strong><br><span style="font-size:.82rem">TTL by tier</span></td><td>Generated media compounds silently. Free tier expires at 48h, paid at 30d, then cold.</td><td>DB blobs</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DATA MODEL ============ -->
+<section id="data">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">09</span><span class="line"></span><span class="wire wire-dim">Data</span></div>
+    <h2>The data model</h2>
+    <p class="lede">Eight domains. The line between the shared corpus and per-user tables is the most important boundary in the schema — cross it wrongly and costs scale with users instead of with news.</p>
+
+    <figure>
+      <div class="svg-frame">
+      <svg viewBox="0 0 1020 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Entity relationship diagram">
+        <defs>
+          <marker id="e1" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+            <path d="M0,0 L7,3.5 L0,7 z" fill="rgba(109,100,163,.7)"/></marker>
+          <style>
+            .ent{fill:#1E262F;stroke:rgba(218,213,201,.2);stroke-width:1;rx:5}
+            .ent-s{fill:#1B2130;stroke:rgba(154,142,224,.45)}
+            .ent-h{fill:#241D1B;stroke:rgba(255,138,61,.45)}
+            .ent-o{fill:#1B1728;stroke:rgba(154,142,224,.5)}
+            .en{font-family:'Martian Mono',monospace;font-size:7.6px;letter-spacing:1px;fill:#DAD5C9}
+            .ef{font-family:'Instrument Sans',sans-serif;font-size:8.6px;fill:rgba(218,213,201,.45)}
+            .rel{stroke:rgba(109,100,163,.6);stroke-width:1;fill:none;marker-end:url(#e1)}
+            .zn{fill:none;stroke-dasharray:4 5;stroke-width:1;rx:9}
+            .znl{font-family:'Martian Mono',monospace;font-size:7.6px;letter-spacing:1.5px}
+          </style>
+        </defs>
+
+        <!-- ZONE: sources -->
+        <rect class="zn" x="16" y="34" width="300" height="150" stroke="rgba(218,213,201,.18)"/>
+        <text class="znl" x="26" y="26" fill="rgba(218,213,201,.45)">SOURCES &amp; PROTOCOLS</text>
+        <rect class="ent" x="32" y="50" width="126" height="52"/>
+        <text class="en" x="95" y="68" text-anchor="middle">source</text>
+        <text class="ef" x="95" y="82" text-anchor="middle">kind · config</text>
+        <text class="ef" x="95" y="94" text-anchor="middle">poll_interval</text>
+        <rect class="ent" x="176" y="50" width="126" height="52"/>
+        <text class="en" x="239" y="68" text-anchor="middle">user_protocol</text>
+        <text class="ef" x="239" y="82" text-anchor="middle">name · filters</text>
+        <text class="ef" x="239" y="94" text-anchor="middle">interest_vector</text>
+        <rect class="ent" x="104" y="118" width="126" height="46"/>
+        <text class="en" x="167" y="136" text-anchor="middle">protocol_source</text>
+        <text class="ef" x="167" y="150" text-anchor="middle">weight</text>
+        <path class="rel" d="M95 102 L150 116"/>
+        <path class="rel" d="M239 102 L186 116"/>
+
+        <!-- ZONE: corpus -->
+        <rect class="zn" x="344" y="34" width="380" height="222" stroke="rgba(154,142,224,.5)"/>
+        <text class="znl" x="354" y="26" fill="#9A8EE0">SHARED CORPUS — NEVER PER-USER</text>
+        <rect class="ent ent-s" x="362" y="50" width="140" height="52"/>
+        <text class="en" x="432" y="68" text-anchor="middle">raw_item</text>
+        <text class="ef" x="432" y="82" text-anchor="middle">url · body · hash</text>
+        <text class="ef" x="432" y="94" text-anchor="middle">fetched_at</text>
+        <rect class="ent ent-s" x="548" y="50" width="158" height="52"/>
+        <text class="en" x="627" y="68" text-anchor="middle">cluster</text>
+        <text class="ef" x="627" y="82" text-anchor="middle">centroid vector(1536)</text>
+        <text class="ef" x="627" y="94" text-anchor="middle">member_count</text>
+        <rect class="ent ent-s" x="440" y="120" width="158" height="46"/>
+        <text class="en" x="519" y="138" text-anchor="middle">cluster_member</text>
+        <text class="ef" x="519" y="152" text-anchor="middle">similarity</text>
+        <rect class="ent ent-s" x="440" y="184" width="220" height="58"/>
+        <text class="en" x="550" y="202" text-anchor="middle">briefing</text>
+        <text class="ef" x="550" y="216" text-anchor="middle">headline · body(60w) · sources[]</text>
+        <text class="ef" x="550" y="228" text-anchor="middle">embedding · confidence · expires_at</text>
+        <path class="rel" d="M432 102 L478 118"/>
+        <path class="rel" d="M627 102 L560 118"/>
+        <path class="rel" d="M519 166 L540 182"/>
+
+        <!-- ZONE: per-user -->
+        <rect class="zn" x="752" y="34" width="252" height="222" stroke="rgba(255,138,61,.45)"/>
+        <text class="znl" x="762" y="26" fill="#FF8A3D">PER USER</text>
+        <rect class="ent ent-h" x="768" y="50" width="220" height="46"/>
+        <text class="en" x="878" y="68" text-anchor="middle">feed_item</text>
+        <text class="ef" x="878" y="82" text-anchor="middle">rank_score · served_at</text>
+        <rect class="ent ent-h" x="768" y="114" width="220" height="46"/>
+        <text class="en" x="878" y="132" text-anchor="middle">swipe</text>
+        <text class="ef" x="878" y="146" text-anchor="middle">direction · dwell_ms</text>
+        <rect class="ent ent-h" x="768" y="178" width="220" height="58"/>
+        <text class="en" x="878" y="196" text-anchor="middle">take</text>
+        <text class="ef" x="878" y="210" text-anchor="middle">text · audio_ref · stance</text>
+        <text class="ef" x="878" y="222" text-anchor="middle">source: authored | suggested</text>
+        <path class="rel" d="M660 206 L764 92"/>
+        <path class="rel" d="M878 96 L878 110"/>
+        <path class="rel" d="M878 160 L878 174"/>
+
+        <!-- ZONE: learning -->
+        <rect class="zn" x="16" y="286" width="300" height="176" stroke="rgba(255,138,61,.45)"/>
+        <text class="znl" x="26" y="278" fill="#FF8A3D">LEARNING</text>
+        <rect class="ent ent-h" x="32" y="302" width="270" height="46"/>
+        <text class="en" x="167" y="320" text-anchor="middle">style_profile</text>
+        <text class="ef" x="167" y="334" text-anchor="middle">register · avoided_words[] · samples[]</text>
+        <rect class="ent ent-h" x="32" y="360" width="270" height="46"/>
+        <text class="en" x="167" y="378" text-anchor="middle">format_matrix</text>
+        <text class="ef" x="167" y="392" text-anchor="middle">topic × type × platform → success</text>
+        <rect class="ent ent-h" x="32" y="418" width="270" height="34"/>
+        <text class="en" x="167" y="440" text-anchor="middle">learning_event · why_shown audit</text>
+
+        <!-- ZONE: generation -->
+        <rect class="zn" x="344" y="286" width="380" height="176" stroke="rgba(218,213,201,.18)"/>
+        <text class="znl" x="354" y="278" fill="rgba(218,213,201,.45)">GENERATION</text>
+        <rect class="ent" x="362" y="302" width="344" height="70"/>
+        <text class="en" x="534" y="320" text-anchor="middle">generation_job</text>
+        <text class="ef" x="534" y="334" text-anchor="middle">state · content_type · variant_index · tier</text>
+        <text class="ef" x="534" y="346" text-anchor="middle">provider_id · idempotency_key</text>
+        <text class="ef" x="534" y="360" text-anchor="middle" fill="#FF8A3D">cost_estimate_cents · cost_actual_cents</text>
+        <rect class="ent" x="362" y="386" width="344" height="58"/>
+        <text class="en" x="534" y="404" text-anchor="middle">artifact</text>
+        <text class="ef" x="534" y="418" text-anchor="middle">type · storage_uri · dimensions · duration</text>
+        <text class="ef" x="534" y="430" text-anchor="middle">expires_at (TTL by tier)</text>
+        <path class="rel" d="M768 214 L710 320"/>
+        <path class="rel" d="M534 372 L534 384"/>
+
+        <!-- ZONE: publishing -->
+        <rect class="zn" x="752" y="286" width="252" height="176" stroke="rgba(218,213,201,.18)"/>
+        <text class="znl" x="762" y="278" fill="rgba(218,213,201,.45)">PUBLISHING</text>
+        <rect class="ent" x="768" y="302" width="220" height="58"/>
+        <text class="en" x="878" y="320" text-anchor="middle">social_account</text>
+        <text class="ef" x="878" y="334" text-anchor="middle">platform · external_id</text>
+        <text class="ef" x="878" y="346" text-anchor="middle">token_ref (encrypted)</text>
+        <rect class="ent" x="768" y="376" width="220" height="68"/>
+        <text class="en" x="878" y="394" text-anchor="middle">publication</text>
+        <text class="ef" x="878" y="408" text-anchor="middle">scheduled_for · posted_at</text>
+        <text class="ef" x="878" y="420" text-anchor="middle">external_post_id · status</text>
+        <text class="ef" x="878" y="434" text-anchor="middle" fill="#FF8A3D">engagement (feeds loops 3 &amp; 4)</text>
+        <path class="rel" d="M706 414 L764 404"/>
+        <path class="rel" d="M878 360 L878 374"/>
+
+        <!-- ZONE: billing -->
+        <rect class="zn" x="16" y="492" width="470" height="140" stroke="rgba(218,213,201,.18)"/>
+        <text class="znl" x="26" y="484" fill="rgba(218,213,201,.45)">BILLING</text>
+        <rect class="ent" x="32" y="508" width="136" height="52"/>
+        <text class="en" x="100" y="526" text-anchor="middle">entitlement</text>
+        <text class="ef" x="100" y="540" text-anchor="middle">tier · caps</text>
+        <text class="ef" x="100" y="552" text-anchor="middle">period_reset</text>
+        <rect class="ent" x="184" y="508" width="152" height="52"/>
+        <text class="en" x="260" y="526" text-anchor="middle">credit_ledger</text>
+        <text class="ef" x="260" y="540" text-anchor="middle">append-only</text>
+        <text class="ef" x="260" y="552" text-anchor="middle">balance = SUM()</text>
+        <rect class="ent" x="352" y="508" width="118" height="52"/>
+        <text class="en" x="411" y="526" text-anchor="middle">byok_cred</text>
+        <text class="ef" x="411" y="540" text-anchor="middle">KMS envelope</text>
+        <text class="ef" x="411" y="552" text-anchor="middle">daily_cap_cents</text>
+        <text class="ef" x="32" y="592" fill="rgba(255,138,61,.75)">Balance is always derived. There is no mutable balance column anywhere in this schema.</text>
+        <text class="ef" x="32" y="608">Reserve-then-commit: a queued job holds credits so ten videos can't be queued against one video's balance.</text>
+
+        <!-- ZONE: observability -->
+        <rect class="zn" x="518" y="492" width="486" height="140" stroke="rgba(154,142,224,.5)"/>
+        <text class="znl" x="528" y="484" fill="#9A8EE0">OBSERVABILITY — PHASE 1, NOT LATER</text>
+        <rect class="ent ent-o" x="534" y="508" width="454" height="84"/>
+        <text class="en" x="761" y="528" text-anchor="middle">pipeline_event</text>
+        <text class="ef" x="761" y="544" text-anchor="middle">trace_id · span_id · parent_span_id · stage · status</text>
+        <text class="ef" x="761" y="558" text-anchor="middle">payload: provider · model · prompt · response · tokens · cost_cents</text>
+        <text class="ef" x="761" y="572" text-anchor="middle">duration_ms · error</text>
+        <text class="ef" x="761" y="586" text-anchor="middle" fill="#9A8EE0">append-only · 7d full payload, metrics forever · streamed over SSE</text>
+        <text class="ef" x="534" y="614">Every service above writes here. The Wire Room reads nothing else.</text>
+
+        <!-- big flow annotation -->
+        <text class="ef" x="16" y="662" fill="rgba(218,213,201,.4)">The boundary that matters: everything in the violet zone is written once per news event. Everything in the orange zones is written once per user per action.</text>
+        <text class="ef" x="16" y="678" fill="rgba(255,138,61,.7)">If a new feature makes the violet zone grow with user count, the feature is wrong.</text>
+      </svg>
+      </div>
+      <figcaption>Fig. 06 — Schema by domain. UUIDv7 keys throughout, HNSW indexes on both vector columns, no cascading deletes on anything financial.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ TIERS ============ -->
+<section id="tiers">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">10</span><span class="line"></span><span class="wire wire-dim">Economics</span></div>
+    <h2>Tiers and unit economics</h2>
+    <p class="lede">Generation cost varies roughly a thousandfold by content type. Any pricing model that ignores that gets destroyed by its heaviest users.</p>
+
+    <h3 style="margin-top:44px">The problem, stated plainly</h3>
+    <p>The naive build — generate three versions of every content type for every kept briefing — produces this:</p>
+
+    <figure>
+      <div class="svg-frame">
+      <svg viewBox="0 0 1020 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cost comparison chart">
+        <style>
+          .bl{font-family:'Martian Mono',monospace;font-size:8px;letter-spacing:1.1px;fill:#DAD5C9}
+          .bv{font-family:'Instrument Serif',serif;font-size:20px;fill:#DAD5C9}
+          .bs{font-family:'Instrument Sans',sans-serif;font-size:9.5px;fill:rgba(218,213,201,.45)}
+        </style>
+        <text class="bl" x="20" y="26" fill="rgba(218,213,201,.4)">COST PER USER PER DAY · 10 KEPT BRIEFINGS</text>
+
+        <text class="bl" x="20" y="66">NAIVE — EAGER EVERYTHING</text>
+        <rect x="20" y="76" width="900" height="26" rx="3" fill="#C4453C"/>
+        <text class="bv" x="936" y="96" fill="#C4453C">$600</text>
+        <text class="bs" x="28" y="94" fill="#fff">3 long videos + 3 short videos + images + text, per briefing, generated automatically</text>
+
+        <text class="bl" x="20" y="140">SHORT VIDEO ONLY, STILL EAGER</text>
+        <rect x="20" y="150" width="90" height="26" rx="3" fill="#FF8A3D"/>
+        <text class="bv" x="126" y="170" fill="#FF8A3D">$60</text>
+        <text class="bs" x="180" y="169">Still 40× over any consumer price point</text>
+
+        <text class="bl" x="20" y="214">LAZY — TEXT AND IMAGES EAGER, VIDEO ON REQUEST</text>
+        <rect x="20" y="224" width="4" height="26" rx="2" fill="#5FBF8F"/>
+        <text class="bv" x="36" y="244" fill="#5FBF8F">$1.30</text>
+        <text class="bs" x="110" y="243">Viable. Video becomes a credit purchase, not a background job.</text>
+      </svg>
+      </div>
+      <figcaption>Fig. 07 — At a $29/month subscription you have roughly $0.95 per user per day of total COGS budget before margin. Only the third bar is a business.</figcaption>
+    </figure>
+
+    <h3 style="margin-top:44px">The three tiers</h3>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>Free</th><th>Pro</th><th>BYOK / Local</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Price</strong></td><td class="n">$0</td><td class="n hot">~$29/mo · 725 credits</td><td class="n">~$15/mo + own keys</td></tr>
+          <tr><td><strong>Briefings/day</strong></td><td class="n">20</td><td class="n">50</td><td class="n">50</td></tr>
+          <tr><td><strong>Selections/day</strong></td><td class="n">3</td><td class="n">credit-limited</td><td class="n">unlimited</td></tr>
+          <tr><td><strong>Versions</strong></td><td class="n">1</td><td class="n">3</td><td class="n">3</td></tr>
+          <tr><td><strong>Text + images</strong></td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td></tr>
+          <tr><td><strong>Video</strong></td><td class="no">no</td><td class="n">credits</td><td class="ok">own keys / own GPU</td></tr>
+          <tr><td><strong>Auto-publishing</strong></td><td class="no">clipboard only</td><td class="ok">included</td><td class="n">+$6/mo</td></tr>
+          <tr><td><strong>Wire Room</strong></td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes — most valuable here</td></tr>
+          <tr><td><strong>The Lattice</strong></td><td class="n">last 30 days</td><td class="ok">full history</td><td class="ok">full history</td></tr>
+          <tr><td><strong>Artefact TTL</strong></td><td class="n">48 hours</td><td class="n">30 days</td><td class="n">30 days</td></tr>
+          <tr><td><strong>Your COGS</strong></td><td class="n">~$0.05/day</td><td class="n">~50% of revenue</td><td class="n">~$3/mo infra</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bar" style="margin-top:34px">
+      <h3 style="font-size:1.3rem">Publishing is the paywall, and it isn't arbitrary</h3>
+      <p>Unified social APIs bill <strong>per connected profile, not per post</strong> — roughly $9 per profile monthly, falling to about $2 at volume. A free user who connects three accounts and posts nothing still costs money every month, forever. And a user genuinely cannot bring their own keys for this: posting to their own accounts would require their own X developer account with loaded credits, a LinkedIn app with an approved Share product, and a Meta app through review. That's a week of work, not an onboarding step.</p>
+      <p style="margin-bottom:0">So publishing is structurally the platform's cost. Which makes it the honest paywall: <strong>free copies to clipboard, paid posts for you.</strong> That's the friction people actually pay to remove.</p>
+    </div>
+
+    <h3 style="margin-top:44px">Credit pricing</h3>
+    <p>Priced off worst-case COGS at roughly 2× markup, so a user who spends every credit on video is still profitable.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Action</th><th>True cost</th><th>Credits</th><th>Tier</th></tr></thead>
+        <tbody>
+          <tr><td>Text variant</td><td class="n">~$0.002</td><td class="n">1</td><td class="ok">eager</td></tr>
+          <tr><td>Image</td><td class="n">~$0.04</td><td class="n">2</td><td class="ok">eager</td></tr>
+          <tr><td>GIF (ffmpeg from stills)</td><td class="n">$0.00</td><td class="n">2</td><td class="ok">eager</td></tr>
+          <tr><td>Short video · 20s</td><td class="n">~$2.00</td><td class="n">100</td><td class="hot">on demand</td></tr>
+          <tr><td>Long video · 3min</td><td class="n">~$18.00</td><td class="n">900</td><td class="no">gated + confirm</td></tr>
+          <tr><td>Publish action</td><td class="n">~$0.10</td><td class="n">5</td><td class="hot">paid only</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-top:44px">Platform costs that will surprise you</h3>
+    <div class="grid g3">
+      <div class="card"><span class="wire" style="color:var(--spike)">Watch this</span><h4 style="margin-top:10px">X: links cost 13× more</h4><p style="font-size:.88rem;margin:0">Pay-per-use pricing charges a premium for posts containing a URL — around $0.20 versus $0.015 for a plain post. This product posts source links by design. Budget for it or make links optional per platform.</p></div>
+      <div class="card"><span class="wire" style="color:var(--spike)">Watch this</span><h4 style="margin-top:10px">YouTube: ~6 uploads/day total</h4><p style="font-size:.88rem;margin:0">The default project quota is 10,000 units daily; an upload costs up to 1,600 and a search costs 100. That ceiling applies to the whole app, not per user. The quota increase is a manual audit form with no guaranteed approval — start it in month one.</p></div>
+      <div class="card"><span class="wire" style="color:var(--spike)">Watch this</span><h4 style="margin-top:10px">LinkedIn: post yes, read no</h4><p style="font-size:.88rem;margin:0">Posting to a member's profile is self-serve. Reading a member's feed is restricted to selected partners. LinkedIn works as a publishing destination and effectively doesn't exist as an ingestion source. Plan sources accordingly.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RISKS ============ -->
+<section id="risks">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">11</span><span class="line"></span><span class="wire wire-dim">Honest assessment</span></div>
+    <h2>Drawbacks and risks</h2>
+    <p class="lede">Ranked by how likely each one is to kill the product, not by how uncomfortable it is to write down.</p>
+
+    <div class="print" style="margin-top:34px">
+      <div class="wire">Risk 01 · Highest</div>
+      <h3 style="margin-top:10px">The take is real work, and most people won't do it</h3>
+      <p>Fifty swipes takes three minutes and feels like a game. Writing twelve opinions afterwards takes fifteen minutes and feels like homework. This is the single point where the funnel breaks, and no amount of generation quality downstream compensates for it.</p>
+      <p style="margin-bottom:0"><strong>Mitigation:</strong> three tappable suggested stances, voice input with live transcription, skip always available, and a Provocateur prompt tuned so a user can tap, change four words, and be done. Measure time-per-take from day one and treat anything above eight seconds as a defect. If the median doesn't fall below that, the product needs rethinking, not more features.</p>
+    </div>
+
+    <div class="print" style="margin-top:20px">
+      <div class="wire">Risk 02</div>
+      <h3 style="margin-top:10px">Automated posting at volume gets accounts flagged</h3>
+      <p>Every major platform has authenticity and spam policies, and high-frequency AI-generated posting is exactly the pattern they detect. The failure mode isn't your account — it's your <em>user's</em> account, which is worse.</p>
+      <p style="margin-bottom:0"><strong>Mitigation:</strong> default ceiling of four posts per account per day with a hard cap at eight, jittered scheduling rather than exact intervals, mandatory human approval before every publish, and honest onboarding copy that says this out loud. The human-in-the-loop step is a compliance feature, not just a UX one.</p>
+    </div>
+
+    <div class="print" style="margin-top:20px">
+      <div class="wire">Risk 03</div>
+      <h3 style="margin-top:10px">Briefing neutrality is harder than it looks</h3>
+      <p>The whole product rests on the briefing being a neutral substrate the user's opinion sits on top of. If the Editor smuggles in a slant, users end up amplifying the model's view while believing it's theirs. That's both a product failure and an ethical one.</p>
+      <p style="margin-bottom:0"><strong>Mitigation:</strong> an explicitly adversarial Editor prompt, a banned-adjective list, mandatory source attribution for single-source claims, a confidence field that surfaces disagreement, and a periodic audit where the same cluster is briefed by two different models and the outputs compared for divergence. Where they diverge, the cluster is flagged as contested in the UI.</p>
+    </div>
+
+    <div class="print" style="margin-top:20px">
+      <div class="wire">Risk 04</div>
+      <h3 style="margin-top:10px">Ingestion is more fragile than generation</h3>
+      <p>Model APIs are reliable and improving. News sources are not. RSS feeds go malformed, Reddit rate-limits, YouTube quota exhausts silently at the worst possible time, and news APIs change pricing on short notice. An empty deck at 8am is a churn event.</p>
+      <p style="margin-bottom:0"><strong>Mitigation:</strong> per-source circuit breakers, a minimum-viable-deck guarantee that backfills from the previous day rather than showing an empty state, quota tracking in Redis that refuses to run at 80% consumption instead of failing at 100%, and at least three independent source types so no single vendor outage empties the pool.</p>
+    </div>
+
+    <div class="print" style="margin-top:20px">
+      <div class="wire">Risk 05</div>
+      <h3 style="margin-top:10px">BYOK is a liability, not just a feature</h3>
+      <p>Holding credentials that can bill unlimited amounts to someone else's card is a serious responsibility. One retry loop bug that silently burns $500 of a user's money is the kind of incident a small product doesn't recover from.</p>
+      <p style="margin-bottom:0"><strong>Mitigation:</strong> KMS envelope encryption, keys never logged or returned to the client, a preflight cost estimate shown before every generation, and a platform-enforced daily spend cap independent of whatever the user set at the provider. The Wire Room's cost meters exist substantially for this.</p>
+    </div>
+
+    <div class="print" style="margin-top:20px">
+      <div class="wire">Risk 06</div>
+      <h3 style="margin-top:10px">Local GPU mode is slower than users expect</h3>
+      <p>A single consumer GPU is serial. A short video that takes 90 seconds on fal.ai takes many minutes locally, and long-form video on 24GB is measured in tens of minutes. Users who choose local mode to save money often haven't priced their own time.</p>
+      <p style="margin-bottom:0"><strong>Mitigation:</strong> honest capability tiering at onboarding based on detected VRAM — never promise video on 8GB — queue position and real ETAs rather than spinners, concurrency of one, and a per-job offer to fall back to cloud with the cost shown. Never silently bill someone who chose local mode specifically to avoid billing.</p>
+    </div>
+
+    <div class="print" style="margin-top:20px">
+      <div class="wire">Risk 07</div>
+      <h3 style="margin-top:10px">The learning loops need volume before they help</h3>
+      <p>Loop 2 works from roughly the third take. Loops 3 and 4 need published posts with measurable engagement, which realistically means weeks. Until then, personalisation is a promise rather than a feature, and the app is competing on generation quality alone — where it has no moat.</p>
+      <p style="margin-bottom:0"><strong>Mitigation:</strong> make cold start genuinely good via protocol-based ranking and well-written generic stances, and make the learning <em>visible</em> early. The Lattice and the voice-match percentage exist partly to show progress before the underlying models are strong enough to feel it.</p>
+    </div>
+
+    <div class="print" style="margin-top:20px">
+      <div class="wire">Risk 08</div>
+      <h3 style="margin-top:10px">Attribution and fair use</h3>
+      <p>Sixty-word factual summaries with prominent source links follow a well-established pattern, but the boundary matters and it varies by jurisdiction. Generated commentary built on that summary is a different question again.</p>
+      <p style="margin-bottom:0"><strong>Mitigation:</strong> never reproduce source text verbatim, hard-cap briefing length, always attach and display source links, honour robots.txt and feed terms, and keep a takedown path. Get an actual lawyer to review this before scale — this document is not legal advice.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GOALS ============ -->
+<section id="goals">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">12</span><span class="line"></span><span class="wire wire-dim">Goals</span></div>
+    <h2>What success looks like</h2>
+
+    <div class="grid g2" style="margin-top:34px">
+      <div class="card" style="border-color:rgba(255,138,61,.35)">
+        <span class="wire" style="color:var(--safelight)">North star</span>
+        <h4 style="margin-top:10px">Weekly posting users</h4>
+        <p style="font-size:.92rem;margin:0">People who publish at least one piece of content per week. Not signups, not swipes, not generations — published artefacts. Everything else in this document is instrumental to that number.</p>
+      </div>
+      <div class="card">
+        <span class="wire">Counter-metric</span>
+        <h4 style="margin-top:10px">COGS per posting user</h4>
+        <p style="font-size:.92rem;margin:0">Tracked alongside the north star so growth can't be bought with unprofitable generation. If posting users rise and COGS per posting user rises faster, the product is getting worse, not better.</p>
+      </div>
+    </div>
+
+    <div class="tbl-wrap" style="margin-top:30px">
+      <table>
+        <thead><tr><th>Metric</th><th>Why it matters</th><th>Target</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Day-7 swipe retention</strong></td><td>The only early signal that the core loop is habit-forming</td><td class="n hot">&gt; 35%</td></tr>
+          <tr><td><strong>Median time per take</strong></td><td>The funnel's narrowest point — the number most likely to sink it</td><td class="n">&lt; 8s</td></tr>
+          <tr><td><strong>Take completion rate</strong></td><td>Kept briefings that actually receive an opinion</td><td class="n">&gt; 60%</td></tr>
+          <tr><td><strong>Voice match</strong></td><td>Falling edit distance on suggestions — proof the learning works</td><td class="n">+5pp/month</td></tr>
+          <tr><td><strong>Selection→publish rate</strong></td><td>Whether generated content is actually good enough to post</td><td class="n">&gt; 45%</td></tr>
+          <tr><td><strong>Briefings per generation call</strong></td><td>Guards the shared-corpus invariant</td><td class="n ok">= 1.0</td></tr>
+          <tr><td><strong>Feed p95 latency</strong></td><td>Everyone opens the app in the same fifteen minutes</td><td class="n">&lt; 200ms</td></tr>
+          <tr><td><strong>Estimate vs actual cost delta</strong></td><td>Trust in BYOK and local mode depends on this staying small</td><td class="n">&lt; 20%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PHASES ============ -->
+<section id="phases">
+  <div class="wrap">
+    <div class="eyebrow"><span class="num">13</span><span class="line"></span><span class="wire wire-dim">Delivery</span></div>
+    <h2>Thirteen phases</h2>
+    <p class="lede">Each phase has a gate you can demo with your own eyes. Claude Code does not proceed past a gate. Building on an unverified phase compounds the error.</p>
+
+    <figure>
+      <div class="svg-frame">
+      <svg viewBox="0 0 1020 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Build phase timeline">
+        <style>
+          .ph{fill:#1E262F;stroke:rgba(109,100,163,.5);stroke-width:1;rx:5}
+          .php{fill:#241D1B;stroke:#FF8A3D;stroke-width:1.5}
+          .phs{fill:#251F3A;stroke:#9A8EE0;stroke-width:1.3}
+          .pn{font-family:'Instrument Serif',serif;font-size:14px;fill:#9A8EE0}
+          .pnh{fill:#FF8A3D}
+          .pt2{font-family:'Martian Mono',monospace;font-size:7.6px;letter-spacing:1px;fill:#DAD5C9}
+          .pg{font-family:'Instrument Sans',sans-serif;font-size:9.5px;fill:rgba(218,213,201,.48)}
+          .rail{stroke:rgba(109,100,163,.3);stroke-width:2}
+        </style>
+        <line class="rail" x1="46" y1="34" x2="46" y2="452"/>
+
+        <circle cx="46" cy="40" r="5" fill="#6D64A3"/>
+        <rect class="ph" x="72" y="22" width="920" height="34"/>
+        <text class="pn" x="88" y="44">0</text>
+        <text class="pt2" x="112" y="38">FOUNDATION</text>
+        <text class="pg" x="112" y="50">Monorepo, tokens, design critique accepted · gate: make dev runs</text>
+
+        <circle cx="46" cy="72" r="5" fill="#9A8EE0"/>
+        <rect class="ph phs" x="72" y="54" width="920" height="34"/>
+        <text class="pn" x="88" y="76">1</text>
+        <text class="pt2" x="112" y="70">SPINE — schema + trace events</text>
+        <text class="pg" x="112" y="82">gate: one trace_id reconstructs a full item journey. Wire Room depends on this.</text>
+
+        <circle cx="46" cy="104" r="5" fill="#6D64A3"/>
+        <rect class="ph" x="72" y="86" width="920" height="34"/>
+        <text class="pn" x="88" y="108">2</text>
+        <text class="pt2" x="112" y="102">PROVIDERS</text>
+        <text class="pg" x="112" y="114">gate: same generation runs on cloud and Ollama, zero changes outside providers/</text>
+
+        <circle cx="46" cy="136" r="5" fill="#6D64A3"/>
+        <rect class="ph" x="72" y="118" width="920" height="34"/>
+        <text class="pn" x="88" y="140">3</text>
+        <text class="pt2" x="112" y="134">CORPUS</text>
+        <text class="pg" x="112" y="146">gate: real briefings in your terminal · 1,000 users don't increase generation count</text>
+
+        <circle cx="46" cy="168" r="5" fill="#FF8A3D"/>
+        <rect class="ph php" x="72" y="150" width="920" height="34"/>
+        <text class="pn pnh" x="88" y="172">4</text>
+        <text class="pt2" x="112" y="166">LEARNING — four loops</text>
+        <text class="pg" x="112" y="178">gate: simulated user's ranking accuracy climbs monotonically over 200 swipes</text>
+
+        <circle cx="46" cy="200" r="5" fill="#6D64A3"/>
+        <rect class="ph" x="72" y="182" width="920" height="34"/>
+        <text class="pn" x="88" y="204">5</text>
+        <text class="pt2" x="112" y="198">GENERATION + BILLING</text>
+        <text class="pg" x="112" y="210">gate: video provably unreachable from any background job · costs logged</text>
+
+        <circle cx="46" cy="232" r="5" fill="#6D64A3"/>
+        <rect class="ph" x="72" y="214" width="920" height="34"/>
+        <text class="pn" x="88" y="236">6</text>
+        <text class="pt2" x="112" y="228">DESIGN SYSTEM + SHELL</text>
+        <text class="pg" x="112" y="240">gate: gallery screenshot looks like DESIGN.md, not like a framework default</text>
+
+        <circle cx="46" cy="272" r="7" fill="#FF8A3D"/>
+        <rect class="ph php" x="72" y="252" width="920" height="42" stroke-width="2"/>
+        <text class="pn pnh" x="88" y="278">7</text>
+        <text class="pt2" x="112" y="270" fill="#FF8A3D">THE LOOP — deck · take capture · contact sheet</text>
+        <text class="pg" x="112" y="283" fill="#FF8A3D">SHIP TO 50 USERS HERE. Swipe → take → pick → clipboard. No publishing yet.</text>
+
+        <circle cx="46" cy="314" r="5" fill="#9A8EE0"/>
+        <rect class="ph phs" x="72" y="296" width="920" height="34"/>
+        <text class="pn" x="88" y="318">8</text>
+        <text class="pt2" x="112" y="312">SIGNATURE I — the Wire Room</text>
+        <text class="pg" x="112" y="324">gate: streaming live during a real generation run, with cost meters moving</text>
+
+        <circle cx="46" cy="346" r="5" fill="#9A8EE0"/>
+        <rect class="ph phs" x="72" y="328" width="920" height="34"/>
+        <text class="pn" x="88" y="350">9</text>
+        <text class="pt2" x="112" y="344">SIGNATURE II — the Lattice</text>
+        <text class="pg" x="112" y="356">gate: LATTICE-REFERENCE.md approved first, then graph, then side-by-side comparison</text>
+
+        <circle cx="46" cy="378" r="5" fill="#6D64A3"/>
+        <rect class="ph" x="72" y="360" width="920" height="34"/>
+        <text class="pn" x="88" y="382">10</text>
+        <text class="pt2" x="112" y="376">PUBLISHING + DASHBOARD</text>
+        <text class="pg" x="112" y="388">gate: real post to a real account · dashboard shows voice match trending</text>
+
+        <circle cx="46" cy="410" r="5" fill="#6D64A3"/>
+        <rect class="ph" x="72" y="392" width="920" height="34"/>
+        <text class="pn" x="88" y="414">11</text>
+        <text class="pt2" x="112" y="408">LOCAL GPU</text>
+        <text class="pg" x="112" y="420">gate: full flow on your own GPU · a test fails if any request leaves the machine</text>
+
+        <circle cx="46" cy="442" r="5" fill="#6D64A3"/>
+        <rect class="ph" x="72" y="424" width="920" height="34"/>
+        <text class="pn" x="88" y="446">12</text>
+        <text class="pt2" x="112" y="440">HARDEN</text>
+        <text class="pg" x="112" y="452">gate: visual audit clean · cost guardrails green · load targets met</text>
+      </svg>
+      </div>
+      <figcaption>Fig. 08 — Phase 7 is the real milestone. Everything before it is infrastructure; everything after it is amplification.</figcaption>
+    </figure>
+
+    <div class="bar" style="margin-top:34px">
+      <p style="margin-bottom:0"><strong>Ship at phase 7, not phase 12.</strong> Get fifty people swiping before publishing, the Wire Room, or the Lattice exist. If day-7 retention is weak, the two signature builds are beautiful things attached to a product nobody wants — and you'll have learned that five phases early instead of five phases late.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="wire" style="margin-bottom:14px">End of document</div>
+    <p style="max-width:58ch">Compression is automatable. Opinion is not. Everything here is either compressing information down to where a person can act on it, or expanding a person's decision back out into artefacts. The two moments in the middle are the product.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:24px">
+      <span class="chip">System document</span>
+      <span class="chip">Companion to the Claude Code playbook</span>
+      <span class="chip hot">v1</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.08, rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('section > .wrap > *, figure, .print, .card').forEach(function(el,i){
+    el.classList.add('rv');
+    el.style.transitionDelay = (Math.min(i%6,5)*35)+'ms';
+    io.observe(el);
+  });
+})();
+</script>
+</body>
+</html>

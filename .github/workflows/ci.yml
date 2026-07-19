@@ -1,0 +1,60 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: wire
+          POSTGRES_PASSWORD: wire
+          POSTGRES_DB: wire_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U wire" --health-interval 5s
+          --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Sync deps
+        working-directory: services/api
+        run: uv sync --all-extras
+      - name: Lint
+        working-directory: services/api
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+      - name: Typecheck
+        working-directory: services/api
+        run: uv run mypy wire_api
+      - name: Test
+        working-directory: services/api
+        env:
+          DATABASE_URL: postgresql+asyncpg://wire:wire@localhost:5432/wire_test
+          REDIS_URL: redis://localhost:6379/0
+        run: uv run pytest -q
+
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build

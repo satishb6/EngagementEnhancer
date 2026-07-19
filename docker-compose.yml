@@ -1,0 +1,69 @@
+name: wire
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: wire
+      POSTGRES_PASSWORD: wire
+      POSTGRES_DB: wire_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wire -d wire_dev"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # --- local GPU profile -----------------------------------------------------
+  # `docker compose --profile local-gpu up` brings up Ollama and ComfyUI with
+  # GPU passthrough. See services/api/wire_api/providers/local/ and
+  # scripts/local-gpu-setup.py for the first-run model pull.
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["local-gpu"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  comfyui:
+    image: ghcr.io/lecode-official/comfyui-docker:latest
+    profiles: ["local-gpu"]
+    ports:
+      - "8188:8188"
+    volumes:
+      - comfyui-models:/opt/comfyui/models
+      - comfyui-output:/opt/comfyui/output
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  pgdata:
+  ollama:
+  comfyui-models:
+  comfyui-output:
