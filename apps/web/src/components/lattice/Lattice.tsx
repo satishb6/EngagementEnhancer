@@ -95,9 +95,11 @@ export function Lattice() {
       ) : (
         <Canvas camera={{ position: [0, 0, 46], fov: 55 }} dpr={[1, 2]}>
           <color attach="background" args={["#0E1116"]} />
-          <ambientLight intensity={0.35} />
-          <pointLight position={[30, 30, 30]} intensity={220} color="#9A8EE0" />
-          <pointLight position={[-30, -20, 10]} intensity={140} color="#FF8A3D" />
+          <ambientLight intensity={0.3} />
+          {/* key light upper-left — the reference's specular signature */}
+          <directionalLight position={[-24, 32, 26]} intensity={2.4} color="#EDE8FF" />
+          <pointLight position={[30, 30, 30]} intensity={180} color="#9A8EE0" />
+          <pointLight position={[-30, -20, 10]} intensity={120} color="#FF8A3D" />
           <NodeCloud
             graph={graph}
             visible={visible}
@@ -236,12 +238,13 @@ function NodeCloud({
         }
       }}
     >
-      <sphereGeometry args={[1, 12, 12]} />
+      {/* glossy plastic per LATTICE-REFERENCE.md — specular pop, soft emissive halo */}
+      <sphereGeometry args={[1, 16, 16]} />
       <meshStandardMaterial
-        roughness={0.35}
-        metalness={0.15}
+        roughness={0.22}
+        metalness={0.05}
         emissive={"#1a1530"}
-        emissiveIntensity={0.6}
+        emissiveIntensity={0.7}
       />
     </instancedMesh>
   );

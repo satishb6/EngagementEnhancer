@@ -59,10 +59,23 @@ export default function Onboarding() {
     if (!rest.length) setStep("sources");
   };
 
-  const finish = () => {
+  const finish = async () => {
     if (!getToken()) {
       router.push("/signup");
       return;
+    }
+    // persist choices: domains become live RSS sources, topics tilt ranking
+    try {
+      await fetch("/api/wire/protocol/bootstrap", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({ domains: [...sources], topics: liked }),
+      });
+    } catch {
+      /* the deck still works from the shared pool */
     }
     router.push("/wire");
   };

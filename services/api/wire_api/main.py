@@ -56,6 +56,7 @@ def _register_routers() -> None:
     from wire_api.feed.router import router as feed_router
     from wire_api.generation.router import router as generation_router
     from wire_api.graph.router import router as graph_router
+    from wire_api.protocols.router import router as protocols_router
     from wire_api.publishing.router import router as publishing_router
     from wire_api.system.router import router as system_router
     from wire_api.takes.router import router as takes_router
@@ -69,6 +70,7 @@ def _register_routers() -> None:
     app.include_router(publishing_router)
     app.include_router(tracing_router)
     app.include_router(graph_router)
+    app.include_router(protocols_router)
     app.include_router(system_router)
 
 

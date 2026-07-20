@@ -2,6 +2,10 @@
 
 Your take on the news, at the speed of a swipe.
 
+> **Not technical?** Read **[docs/GETTING-STARTED-SIMPLE.md](docs/GETTING-STARTED-SIMPLE.md)**
+> instead of this file. Short version: install Docker Desktop, double-click
+> `SETUP-WIRE.bat` once, then `START-WIRE.bat` whenever you want the app.
+
 The machine reads everything you nominate, deduplicates it into ~500 shared
 sixty-word briefings a day, and ranks 50 for you. You swipe. On the keepers
 you add your take — typed, spoken, or tapped from three suggested stances and

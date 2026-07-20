@@ -106,6 +106,8 @@ export default function StudioPage() {
         </div>
       </section>
 
+      <ProtocolEditor onNotice={setNotice} />
+
       <section className="mb-10">
         <Wire tone="machine">mode</Wire>
         <p className="mt-1 text-label text-silver-dim">
@@ -212,5 +214,101 @@ export default function StudioPage() {
         </ChromeButton>
       </section>
     </div>
+  );
+}
+
+interface ProtocolSourceRow {
+  link_id: string;
+  domain: string;
+  name: string;
+  url: string;
+  kind: string;
+}
+
+function ProtocolEditor({ onNotice }: { onNotice: (s: string) => void }) {
+  const [sources, setSources] = useState<ProtocolSourceRow[]>([]);
+  const [url, setUrl] = useState("");
+
+  const load = async () => {
+    const res = await fetch("/api/wire/protocol", {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    if (res.ok) {
+      const data = (await res.json()) as { sources: ProtocolSourceRow[] };
+      setSources(data.sources);
+    }
+  };
+
+  useEffect(() => {
+    void load();
+  }, []);
+
+  const add = async () => {
+    if (!url.trim()) return;
+    const res = await fetch("/api/wire/protocol/sources", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify({ url: url.trim() }),
+    });
+    if (res.ok) {
+      setUrl("");
+      onNotice("Source added. The next ingest cycle pulls from it.");
+      void load();
+    } else {
+      onNotice("Couldn't add that source — check the URL.");
+    }
+  };
+
+  const remove = async (linkId: string) => {
+    await fetch(`/api/wire/protocol/sources/${linkId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    void load();
+  };
+
+  return (
+    <section className="mb-10">
+      <Wire tone="machine">protocol — your sources</Wire>
+      <p className="mt-1 text-label text-silver-dim">
+        The wire reads what you tell it to. Paste any site or RSS feed URL.
+      </p>
+      <div className="mt-3 flex gap-3">
+        <input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && void add()}
+          placeholder="https://example.com/feed"
+          className="flex-1 rounded-chrome bg-selenium px-4 py-2 text-label text-silver outline-none placeholder:text-silver-dim/40"
+        />
+        <SafelightButton onClick={() => void add()} disabled={!url.trim()}>
+          Add source
+        </SafelightButton>
+      </div>
+      {sources.length ? (
+        <ul className="mt-4 space-y-1">
+          {sources.map((s) => (
+            <li
+              key={s.link_id}
+              className="flex items-center justify-between rounded-chrome bg-graphite-2 px-4 py-2"
+            >
+              <span className="font-mono text-[12px] text-silver-dim">
+                {s.kind.toUpperCase()} · {s.domain || s.name}
+              </span>
+              <button onClick={() => void remove(s.link_id)}>
+                <Wire tone="reject">remove</Wire>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-3 text-label text-silver-dim/60">
+          No sources yet — the deck falls back to the shared pool.
+        </p>
+      )}
+    </section>
   );
 }
