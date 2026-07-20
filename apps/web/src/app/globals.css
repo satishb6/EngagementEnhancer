@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Redaction — the display face. Drop the OFL font files into public/fonts/
+   (Redaction_35-Regular.woff2 etc, from https://redaction.us). Until then the
+   stack falls back to Instrument Serif, which keeps the layout identical. */
+@font-face {
+  font-family: "Redaction";
+  src: url("/fonts/Redaction_35-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Redaction-10";
+  src: url("/fonts/Redaction_10-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Redaction-100";
+  src: url("/fonts/Redaction_100-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #12161b; /* graphite */
+  color: #dad5c9; /* silver */
+  min-height: 100%;
+}
+
+/* The wire label: always uppercase, always tracked, always small. */
+.wire-label {
+  font-family: "Martian Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Print surface: paper is cut (3px), top-edge highlight, real shadow. */
+.print-surface {
+  position: relative;
+  background: #dad5c9;
+  color: #0c0f13;
+  border-radius: 3px;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.7);
+}
+.print-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px 3px 0 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* Machine chrome: tone separation, never elevation. */
+.chrome-surface {
+  background: #1e262f;
+  border-radius: 10px;
+}
+
+/* Grain — 2-3% noise across the whole app, always. */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* The develop transition: near-black + heavy grain resolving to the print.
+   Used ONLY for briefings and finished content. */
+@keyframes develop {
+  0% {
+    filter: brightness(0.08) contrast(1.6) saturate(0.4);
+  }
+  55% {
+    filter: brightness(0.55) contrast(1.25) saturate(0.75);
+  }
+  100% {
+    filter: brightness(1) contrast(1) saturate(1);
+  }
+}
+.develop-in {
+  animation: develop 700ms cubic-bezier(0.3, 0.75, 0.4, 1) both;
+}
+
+/* Redaction grade simulation until the graded font files are installed:
+   grade 10 = coarse/machine, 100 = fine/human. */
+.grade-10 {
+  font-family: "Redaction-10", "Redaction", "Instrument Serif", serif;
+  opacity: 0.82;
+  filter: contrast(1.35) blur(0.24px);
+}
+.grade-35 {
+  font-family: "Redaction", "Instrument Serif", serif;
+}
+.grade-100 {
+  font-family: "Redaction-100", "Redaction", "Instrument Serif", serif;
+  opacity: 1;
+  filter: none;
+}
+
+::selection {
+  background: #ff8a3d;
+  color: #0c0f13;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .develop-in {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 120ms !important;
+    transition-duration: 120ms !important;
+  }
+}
+
+/* thin scrollbars that don't fight the room */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #27313c transparent;
+}

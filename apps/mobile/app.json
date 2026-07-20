@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "WIRE",
+    "slug": "wire",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "wire",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#12161B",
+    "splash": {
+      "backgroundColor": "#12161B"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.wire.mobile"
+    },
+    "android": {
+      "package": "app.wire.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#12161B"
+      }
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

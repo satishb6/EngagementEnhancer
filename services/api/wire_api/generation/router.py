@@ -204,6 +204,26 @@ async def approve_video_storyboard(
     return {"job_id": str(job.id), "state": job.state.value, "shots_started": True}
 
 
+@router.get("/artifacts")
+async def list_artifacts(
+    user: CurrentUser, session: DB, limit: int = 60
+) -> list[dict[str, Any]]:
+    """The user's finished prints, newest first — the library view."""
+    rows = (
+        (
+            await session.execute(
+                select(Artifact)
+                .where(Artifact.user_id == user.id, Artifact.cold_stored.is_(False))
+                .order_by(Artifact.created_at.desc())
+                .limit(min(limit, 200))
+            )
+        )
+        .scalars()
+        .all()
+    )
+    return [_artifact_json(a) for a in rows]
+
+
 @router.get("/jobs")
 async def list_jobs(
     user: CurrentUser, session: DB, take_id: uuid.UUID | None = None, limit: int = 50
