@@ -1,0 +1,16 @@
+Create local foler and giv eto claude code
+
+
+if stops in b/w
+
+morning 7am
+select opus if fable is not available and provide below prompt,
+
+I want you to build this complete Production grade project(all the parts and phases) 
+and guide me to deploy it  and make it online
+
+(it will continue automatically)
+
+how to test this app that you have built till now?
+Give me a guide so that I can test and provide my feedback.
+Feedback and edits and further updates.
