@@ -14,7 +14,7 @@ from wire_api.learning.voice import reset_voice, voice_match_series
 from wire_api.models import UserMode
 from wire_api.settings import get_settings
 from wire_api.system.hardware import probe
-from wire_api.tracing.emit import get_redis
+from wire_api.bus import get_counters
 
 router = APIRouter(prefix="/system", tags=["system"])
 
@@ -69,9 +69,8 @@ async def meters(user: CurrentUser, session: DB) -> dict[str, Any]:
     from wire_api.models.base import utcnow
 
     settings = get_settings()
-    redis = get_redis()
     date_key = utcnow().strftime("%Y-%m-%d")
-    youtube_used = int(await redis.get(f"wire:youtube:quota:{date_key}") or 0)
+    youtube_used = await get_counters().get(f"wire:youtube:quota:{date_key}")
 
     since = utcnow() - timedelta(hours=24)
     burned = (

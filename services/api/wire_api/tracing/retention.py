@@ -36,7 +36,32 @@ _STRIP_SQL = text(
 async def strip_old_payloads() -> int:
     cutoff = utcnow() - timedelta(days=get_settings().trace_full_payload_days)
     async with session_scope() as s:
-        result = await s.execute(_STRIP_SQL, {"keep": KEEP_KEYS, "cutoff": cutoff})
-        stripped = result.rowcount or 0
+        from wire_api.dbcompat import is_postgres
+
+        if is_postgres(s):
+            result = await s.execute(_STRIP_SQL, {"keep": KEEP_KEYS, "cutoff": cutoff})
+            stripped = result.rowcount or 0
+        else:
+            from sqlalchemy import select
+
+            from wire_api.models import PipelineEvent
+
+            rows = (
+                (
+                    await s.execute(
+                        select(PipelineEvent).where(
+                            PipelineEvent.created_at < cutoff,
+                            PipelineEvent.payload_stripped.is_(False),
+                        ).limit(5000)
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            for event in rows:
+                event.payload = {k: v for k, v in (event.payload or {}).items()
+                                 if k in KEEP_KEYS}
+                event.payload_stripped = True
+            stripped = len(rows)
     log.info("trace.retention", stripped=stripped)
     return stripped

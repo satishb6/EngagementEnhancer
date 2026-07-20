@@ -7,11 +7,9 @@ from datetime import datetime
 from typing import Any
 
 from sqlalchemy import DateTime, Enum, Float, ForeignKey, Index, String
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from wire_api.models.base import Base, PKMixin, TimestampMixin
+from wire_api.models.base import Base, GUID, JSONField, PKMixin, TimestampMixin, TZDateTime
 
 
 class Stage(enum.StrEnum):
@@ -34,27 +32,27 @@ class EventStatus(enum.StrEnum):
 class PipelineEvent(Base, PKMixin, TimestampMixin):
     __tablename__ = "pipeline_event"
 
-    trace_id: Mapped[uuid.UUID] = mapped_column(PGUUID(as_uuid=True), nullable=False)
-    span_id: Mapped[uuid.UUID] = mapped_column(PGUUID(as_uuid=True), nullable=False)
-    parent_span_id: Mapped[uuid.UUID | None] = mapped_column(PGUUID(as_uuid=True))
+    trace_id: Mapped[uuid.UUID] = mapped_column(GUID, nullable=False)
+    span_id: Mapped[uuid.UUID] = mapped_column(GUID, nullable=False)
+    parent_span_id: Mapped[uuid.UUID | None] = mapped_column(GUID)
     stage: Mapped[Stage] = mapped_column(Enum(Stage, native_enum=False, length=12), nullable=False)
     entity_type: Mapped[str] = mapped_column(String(40), default="")
     entity_id: Mapped[str] = mapped_column(String(64), default="")
     # nullable — corpus stages aren't user-scoped
     user_id: Mapped[uuid.UUID | None] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("app_user.id", ondelete="SET NULL")
+        GUID, ForeignKey("app_user.id", ondelete="SET NULL")
     )
     status: Mapped[EventStatus] = mapped_column(
         Enum(EventStatus, native_enum=False, length=12), nullable=False
     )
-    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    started_at: Mapped[datetime | None] = mapped_column(TZDateTime())
+    ended_at: Mapped[datetime | None] = mapped_column(TZDateTime())
     duration_ms: Mapped[float | None] = mapped_column(Float)
     # stage-specific; for model calls MUST include provider, model, prompt,
     # response, input_tokens, output_tokens, cost_cents. Redaction guard
     # rejects anything key-shaped before it gets here.
-    payload: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
-    error: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSONField, default=dict)
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSONField)
     # retention: prompt/response stripped after N days, metrics kept forever
     payload_stripped: Mapped[bool] = mapped_column(default=False)
 

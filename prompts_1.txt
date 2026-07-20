@@ -11,6 +11,23 @@ and guide me to deploy it  and make it online
 
 (it will continue automatically)
 
+
+
 how to test this app that you have built till now?
 Give me a guide so that I can test and provide my feedback.
 Feedback and edits and further updates.
+
+
+
+Guide me how to do below points:
+•	Not yet run against a live Postgres on this machine — Docker isn't installed here, so alembic upgrade + seed + the integration suite have their first real run on your server (or after you install Docker Desktop locally). The unit layer, full API import, and the web production build are all verified.
+•	Fonts: Redaction's graded cuts need manual download into apps/web/public/fonts/ (free, from redaction.us); until then it falls back gracefully to Instrument Serif with CSS-simulated grades.
+•	Mobile is a functional scaffold — it needs npx expo start on a machine with the Expo toolchain, and the R3F/Skia deck treatment from the playbook is the natural next iteration.
+•	Playbook steps that require your input remain: the Lattice reference-repo extraction (3.6c Step 1 — point me at your portfolio repo), Playwright visual QA against a running app, and the k6 run against your deployed URL.
+
+
+Also, tell me what is completed so far and what else is pending?
+
+https://github.com/satishb6/EngagementEnhancer.git
+
+Robotics (Neuromorphic computing)

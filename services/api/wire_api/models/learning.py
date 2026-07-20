@@ -5,11 +5,9 @@ import uuid
 from typing import Any
 
 from sqlalchemy import Float, ForeignKey, Index, Integer, String
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from wire_api.models.base import Base, PKMixin, TimestampMixin
+from wire_api.models.base import Base, GUID, JSONField, PKMixin, TimestampMixin, TZDateTime
 
 
 class StyleProfile(Base, PKMixin, TimestampMixin):
@@ -18,7 +16,7 @@ class StyleProfile(Base, PKMixin, TimestampMixin):
     __tablename__ = "style_profile"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("app_user.id", ondelete="CASCADE"),
+        GUID, ForeignKey("app_user.id", ondelete="CASCADE"),
         unique=True, nullable=False,
     )
     sentence_length_mean: Mapped[float] = mapped_column(Float, default=0.0)
@@ -27,10 +25,10 @@ class StyleProfile(Base, PKMixin, TimestampMixin):
     hedging_ratio: Mapped[float] = mapped_column(Float, default=0.0)
     profanity: Mapped[bool] = mapped_column(default=False)
     question_frequency: Mapped[float] = mapped_column(Float, default=0.0)
-    signature_constructions: Mapped[list[str]] = mapped_column(JSONB, default=list)
-    avoided_words: Mapped[list[str]] = mapped_column(JSONB, default=list)
-    stance_distribution: Mapped[dict[str, float]] = mapped_column(JSONB, default=dict)
-    sample_sentences: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    signature_constructions: Mapped[list[str]] = mapped_column(JSONField, default=list)
+    avoided_words: Mapped[list[str]] = mapped_column(JSONField, default=list)
+    stance_distribution: Mapped[dict[str, float]] = mapped_column(JSONField, default=dict)
+    sample_sentences: Mapped[list[str]] = mapped_column(JSONField, default=list)
     take_count: Mapped[int] = mapped_column(Integer, default=0)
 
 
@@ -41,7 +39,7 @@ class FormatStat(Base, PKMixin, TimestampMixin):
     __tablename__ = "format_stat"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("app_user.id", ondelete="CASCADE"), nullable=False
+        GUID, ForeignKey("app_user.id", ondelete="CASCADE"), nullable=False
     )
     region_key: Mapped[str] = mapped_column(String(80), nullable=False)
     content_type: Mapped[str] = mapped_column(String(16), nullable=False)
@@ -62,7 +60,7 @@ class TimingStat(Base, PKMixin, TimestampMixin):
     __tablename__ = "timing_stat"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("app_user.id", ondelete="CASCADE"), nullable=False
+        GUID, ForeignKey("app_user.id", ondelete="CASCADE"), nullable=False
     )
     platform: Mapped[str] = mapped_column(String(16), nullable=False)
     weekday: Mapped[int] = mapped_column(Integer, nullable=False)  # 0=Mon
@@ -82,12 +80,12 @@ class LearningEvent(Base, PKMixin, TimestampMixin):
     __tablename__ = "learning_event"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("app_user.id", ondelete="CASCADE"), nullable=False
+        GUID, ForeignKey("app_user.id", ondelete="CASCADE"), nullable=False
     )
     loop: Mapped[str] = mapped_column(String(12), nullable=False)  # taste|voice|format|timing
     trigger_kind: Mapped[str] = mapped_column(String(24), nullable=False)  # swipe|take|pick|publish
-    trigger_id: Mapped[uuid.UUID | None] = mapped_column(PGUUID(as_uuid=True))
-    detail: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    trigger_id: Mapped[uuid.UUID | None] = mapped_column(GUID)
+    detail: Mapped[dict[str, Any]] = mapped_column(JSONField, default=dict)
 
     __table_args__ = (
         Index("ix_learning_event_user_loop", "user_id", "loop", "created_at"),

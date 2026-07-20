@@ -6,28 +6,18 @@ from datetime import datetime
 from typing import Any
 
 import orjson
-import redis.asyncio as aioredis
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from wire_api.bus import CHANNEL, get_bus
 from wire_api.logging import get_logger
 from wire_api.models import PipelineEvent
 from wire_api.models.base import utcnow, uuid7
 from wire_api.models.tracing import EventStatus, Stage
-from wire_api.settings import get_settings
 from wire_api.tracing.redaction import assert_payload_clean
 
 log = get_logger(__name__)
 
-CHANNEL = "wire:events"
-
-_redis: aioredis.Redis | None = None
-
-
-def get_redis() -> aioredis.Redis:
-    global _redis
-    if _redis is None:
-        _redis = aioredis.from_url(get_settings().redis_url, decode_responses=True)
-    return _redis
+__all__ = ["CHANNEL", "emit_event"]
 
 
 def _serialise(event: PipelineEvent) -> bytes:
@@ -91,7 +81,7 @@ async def emit_event(
     session.add(event)
     await session.flush()
     try:
-        await get_redis().publish(CHANNEL, _serialise(event))
+        await get_bus().publish(_serialise(event).decode())
     except Exception as exc:  # noqa: BLE001 — live stream is best-effort; the DB row is truth
         log.warning("trace.publish_failed", error=str(exc))
     return event

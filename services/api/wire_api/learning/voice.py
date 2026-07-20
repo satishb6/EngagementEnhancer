@@ -38,7 +38,14 @@ async def update_style_profile(
         await session.execute(select(StyleProfile).where(StyleProfile.user_id == user_id))
     ).scalar_one_or_none()
     if profile is None:
-        profile = StyleProfile(user_id=user_id)
+        # column defaults apply at INSERT, not construction — set them now so
+        # the maths below never meets a None
+        profile = StyleProfile(
+            user_id=user_id, sentence_length_mean=0.0, sentence_length_sd=0.0,
+            hedging_ratio=0.0, question_frequency=0.0, profanity=False,
+            take_count=0, signature_constructions=[], avoided_words=[],
+            stance_distribution={}, sample_sentences=[],
+        )
         session.add(profile)
 
     text = new_take.text_content
@@ -85,19 +92,17 @@ async def similar_takes(
     session: AsyncSession, user_id: uuid.UUID, embedding: list[float], k: int = 5
 ) -> list[Take]:
     """k most semantically similar past AUTHORED takes — the few-shot set."""
-    rows = (
-        await session.execute(
-            select(Take)
-            .where(
-                Take.user_id == user_id,
-                Take.source == TakeSource.AUTHORED,
-                Take.embedding.is_not(None),
-            )
-            .order_by(Take.embedding.cosine_distance(embedding))
-            .limit(k)
-        )
-    ).scalars()
-    return list(rows)
+    from wire_api.dbcompat import knn
+
+    pairs = await knn(
+        session, Take, Take.embedding, embedding, limit=k,
+        base_query=select(Take).where(
+            Take.user_id == user_id,
+            Take.source == TakeSource.AUTHORED,
+            Take.embedding.is_not(None),
+        ),
+    )
+    return [take for take, _sim in pairs]
 
 
 def style_constraints(profile: StyleProfile | None) -> dict[str, Any]:

@@ -17,35 +17,32 @@ from sqlalchemy import (
     Text,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from pgvector.sqlalchemy import Vector
 
-from wire_api.models.base import EMBED_DIM, Base, PKMixin, TimestampMixin
+from wire_api.models.base import Base, EMBED_DIM, EmbeddingVector, GUID, JSONField, PKMixin, TimestampMixin, TZDateTime
 
 
 class RawItem(Base, PKMixin, TimestampMixin):
     __tablename__ = "raw_item"
 
     source_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("source.id", ondelete="SET NULL"), nullable=True
+        GUID, ForeignKey("source.id", ondelete="SET NULL"), nullable=True
     )
     canonical_url: Mapped[str] = mapped_column(Text, nullable=False)
     title: Mapped[str] = mapped_column(Text, default="")
     body: Mapped[str] = mapped_column(Text, default="")
     author: Mapped[str] = mapped_column(String(300), default="")
     domain: Mapped[str] = mapped_column(String(200), default="")
-    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    fetched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    published_at: Mapped[datetime | None] = mapped_column(TZDateTime())
+    fetched_at: Mapped[datetime | None] = mapped_column(TZDateTime())
     # sha256 of normalised content — dedup at fetch time so unchanged items
     # cost nothing downstream
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
-    embedding: Mapped[list[float] | None] = mapped_column(Vector(EMBED_DIM))
-    embedded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    clustered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    meta: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    embedding: Mapped[list[float] | None] = mapped_column(EmbeddingVector())
+    embedded_at: Mapped[datetime | None] = mapped_column(TZDateTime())
+    clustered_at: Mapped[datetime | None] = mapped_column(TZDateTime())
+    meta: Mapped[dict[str, Any]] = mapped_column(JSONField, default=dict)
 
     __table_args__ = (
         # hot path: new items awaiting embedding / clustering
@@ -62,13 +59,13 @@ class Cluster(Base, PKMixin, TimestampMixin):
 
     __tablename__ = "cluster"
 
-    centroid: Mapped[list[float] | None] = mapped_column(Vector(EMBED_DIM))
+    centroid: Mapped[list[float] | None] = mapped_column(EmbeddingVector())
     member_count: Mapped[int] = mapped_column(Integer, default=0)
     # member_count when the current briefing was written; regenerate when
     # membership grows by >40%
     briefed_member_count: Mapped[int] = mapped_column(Integer, default=0)
-    first_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    last_grown_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    first_seen_at: Mapped[datetime | None] = mapped_column(TZDateTime())
+    last_grown_at: Mapped[datetime | None] = mapped_column(TZDateTime())
     # coarse topic region key for the Lattice + per-region taste weights
     region_key: Mapped[str] = mapped_column(String(80), default="")
 
@@ -88,10 +85,10 @@ class ClusterMember(Base, PKMixin, TimestampMixin):
     __tablename__ = "cluster_member"
 
     cluster_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("cluster.id", ondelete="CASCADE"), nullable=False
+        GUID, ForeignKey("cluster.id", ondelete="CASCADE"), nullable=False
     )
     raw_item_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("raw_item.id", ondelete="CASCADE"), nullable=False
+        GUID, ForeignKey("raw_item.id", ondelete="CASCADE"), nullable=False
     )
     similarity: Mapped[float] = mapped_column(Float, nullable=False)
 
@@ -107,7 +104,7 @@ class Briefing(Base, PKMixin, TimestampMixin):
     __tablename__ = "briefing"
 
     cluster_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("cluster.id", ondelete="CASCADE"),
+        GUID, ForeignKey("cluster.id", ondelete="CASCADE"),
         nullable=False, unique=True,
     )
     headline: Mapped[str] = mapped_column(String(200), nullable=False)
@@ -116,15 +113,15 @@ class Briefing(Base, PKMixin, TimestampMixin):
     confidence: Mapped[str] = mapped_column(String(12), default="medium")  # high|medium|low
     contested: Mapped[bool] = mapped_column(Boolean, default=False)
     # [{"url":..., "domain":..., "title":...}] ranked by domain authority, deduped by domain
-    source_links: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
-    claims: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
-    embedding: Mapped[list[float] | None] = mapped_column(Vector(EMBED_DIM))
-    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    source_links: Mapped[list[dict[str, Any]]] = mapped_column(JSONField, default=list)
+    claims: Mapped[list[dict[str, Any]]] = mapped_column(JSONField, default=list)
+    embedding: Mapped[list[float] | None] = mapped_column(EmbeddingVector())
+    published_at: Mapped[datetime | None] = mapped_column(TZDateTime())
+    expires_at: Mapped[datetime | None] = mapped_column(TZDateTime())
     # soft delete: expired briefings leave the active pool, kept for analytics
     expired: Mapped[bool] = mapped_column(Boolean, default=False)
     # cached 3D UMAP projection for the Lattice
-    projection: Mapped[list[float] | None] = mapped_column(JSONB)
+    projection: Mapped[list[float] | None] = mapped_column(JSONField)
 
     __table_args__ = (
         Index(

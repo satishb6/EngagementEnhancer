@@ -14,6 +14,7 @@ import {
   Wire,
 } from "@/components/ui/primitives";
 import { useRouter } from "next/navigation";
+import { EnginePanel } from "@/components/studio/EnginePanel";
 
 type Caps = Awaited<ReturnType<typeof api.capabilities>>;
 
@@ -105,6 +106,8 @@ export default function StudioPage() {
           </div>
         </div>
       </section>
+
+      <EnginePanel onNotice={setNotice} />
 
       <ProtocolEditor onNotice={setNotice} />
 

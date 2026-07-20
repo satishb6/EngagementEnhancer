@@ -5,13 +5,10 @@ import uuid
 from typing import Any
 
 from sqlalchemy import Enum, Float, ForeignKey, Index, Integer, String
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from pgvector.sqlalchemy import Vector
 
-from wire_api.models.base import EMBED_DIM, Base, PKMixin, TimestampMixin
+from wire_api.models.base import Base, EMBED_DIM, EmbeddingVector, GUID, JSONField, PKMixin, TimestampMixin, TZDateTime
 
 
 class SourceKind(enum.StrEnum):
@@ -31,7 +28,7 @@ class Source(Base, PKMixin, TimestampMixin):
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     # per-type config: {"url": ...} for rss, {"subreddit": ...} for reddit,
     # {"channel_id"|"playlist_id"|"query": ...} for youtube, etc.
-    config: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    config: Mapped[dict[str, Any]] = mapped_column(JSONField, default=dict)
     domain: Mapped[str] = mapped_column(String(200), default="")
     poll_interval_s: Mapped[int] = mapped_column(Integer, default=900)
     # adaptive polling: sources that publish rarely get polled less
@@ -52,13 +49,13 @@ class UserProtocol(Base, PKMixin, TimestampMixin):
     __tablename__ = "user_protocol"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("app_user.id", ondelete="CASCADE"), nullable=False
+        GUID, ForeignKey("app_user.id", ondelete="CASCADE"), nullable=False
     )
     name: Mapped[str] = mapped_column(String(120), nullable=False)
-    interest_vector: Mapped[list[float] | None] = mapped_column(Vector(EMBED_DIM))
+    interest_vector: Mapped[list[float] | None] = mapped_column(EmbeddingVector())
     # region key -> weight multiplier; lets a user like AI news but mute AI funding
-    region_weights: Mapped[dict[str, float]] = mapped_column(JSONB, default=dict)
-    filters: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    region_weights: Mapped[dict[str, float]] = mapped_column(JSONField, default=dict)
+    filters: Mapped[dict[str, Any]] = mapped_column(JSONField, default=dict)
     is_default: Mapped[bool] = mapped_column(default=True)
 
     __table_args__ = (
@@ -70,10 +67,10 @@ class ProtocolSource(Base, PKMixin, TimestampMixin):
     __tablename__ = "protocol_source"
 
     protocol_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("user_protocol.id", ondelete="CASCADE"), nullable=False
+        GUID, ForeignKey("user_protocol.id", ondelete="CASCADE"), nullable=False
     )
     source_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("source.id", ondelete="CASCADE"), nullable=False
+        GUID, ForeignKey("source.id", ondelete="CASCADE"), nullable=False
     )
     weight: Mapped[float] = mapped_column(Float, default=1.0)
 

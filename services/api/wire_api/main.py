@@ -18,8 +18,17 @@ log = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     configure_logging()
-    log.info("wire_api.start", version=__version__, env=get_settings().wire_env)
+    settings = get_settings()
+    log.info("wire_api.start", version=__version__, env=settings.wire_env,
+             lite_mode=not settings.redis_url)
+    tasks = []
+    if settings.embedded_worker:
+        from wire_api.embedded import start_embedded_loops
+
+        tasks = start_embedded_loops()
     yield
+    for task in tasks:
+        task.cancel()
     await dispose_engine()
     log.info("wire_api.stop")
 
@@ -28,11 +37,27 @@ app = FastAPI(title="WIRE API", version=__version__, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:8081"],
+    allow_origin_regex=r"https?://(localhost(:\d+)?|.*\.vercel\.app|.*\.hf\.space)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def request_engine_middleware(request, call_next):  # type: ignore[no-untyped-def]
+    """Frontend BYOK: keys arrive per request, live for the request only."""
+    from wire_api.providers.request_keys import clear_request_engine, set_request_engine
+
+    set_request_engine(
+        request.headers.get("x-wire-keys"),
+        request.headers.get("x-wire-provider"),
+        request.headers.get("x-wire-model"),
+    )
+    try:
+        return await call_next(request)
+    finally:
+        clear_request_engine()
 
 
 @app.get("/health")

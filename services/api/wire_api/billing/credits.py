@@ -46,10 +46,14 @@ PRICE_BY_CONTENT_TYPE: dict[str, int] = {
 
 
 async def _lock_user(session: AsyncSession, user_id: uuid.UUID) -> None:
-    """Advisory xact lock keyed on the user id — released at commit/rollback."""
-    await session.execute(
-        text("SELECT pg_advisory_xact_lock(hashtext(:uid))"), {"uid": str(user_id)}
-    )
+    """Advisory xact lock keyed on the user id — released at commit/rollback.
+    SQLite is single-writer, so the lock is a no-op there."""
+    from wire_api.dbcompat import is_postgres
+
+    if is_postgres(session):
+        await session.execute(
+            text("SELECT pg_advisory_xact_lock(hashtext(:uid))"), {"uid": str(user_id)}
+        )
 
 
 async def balance(session: AsyncSession, user_id: uuid.UUID) -> int:

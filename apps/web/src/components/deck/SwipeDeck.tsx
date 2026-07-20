@@ -260,9 +260,9 @@ function DeckCard({
           </h2>
           <p className="mt-5 flex-1 text-body text-ink-soft">{item.briefing.body}</p>
           <div className="mt-4 flex flex-wrap gap-2">
-            {item.briefing.source_links.slice(0, 4).map((link) => (
+            {item.briefing.source_links.slice(0, 4).map((link, li) => (
               <a
-                key={link.domain}
+                key={`${link.domain}-${li}`}
                 href={link.url}
                 target="_blank"
                 rel="noreferrer"

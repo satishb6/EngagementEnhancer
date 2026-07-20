@@ -123,9 +123,9 @@ async def enqueue_eager_generation(
             job_ids.append(str(job.id))
 
     if job_ids:
-        from wire_api.worker import eager_generation
+        from wire_api.embedded import dispatch_generation
 
-        eager_generation.apply_async(args=[job_ids], headers={})
+        dispatch_generation(job_ids)
     return job_ids
 
 
@@ -231,7 +231,12 @@ async def _run_single_job(
                 raise RuntimeError("image provider returned nothing")
             img = images[0]
             actual_cents = img.meta.cost_cents
-            uri = await mirror_url(img.url, ".png") if img.url else img.path
+            if img.url.startswith("data:"):
+                uri = img.url  # demo placeholder — stored inline
+            elif img.url:
+                uri = await mirror_url(img.url, ".png")
+            else:
+                uri = img.path
             session.add(Artifact(
                 job_id=job.id, user_id=job.user_id, content_type=ContentType.IMAGE,
                 variant_index=job.variant_index, storage_uri=uri,
@@ -258,6 +263,11 @@ async def _run_single_job(
             ).scalar_one_or_none()
             if sibling is None or not sibling.storage_uri:
                 raise RuntimeError("no source image yet for gif synthesis")
+            if sibling.storage_uri.startswith("data:"):
+                raise RuntimeError(
+                    "GIFs need a real rendered image — add a fal.ai key in "
+                    "Studio → Engine and regenerate."
+                )
             from pathlib import Path
 
             source = Path(sibling.storage_uri)

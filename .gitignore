@@ -42,3 +42,7 @@ screenshots/
 # Local reference material (not part of the product)
 WhatsApp Image*.jpeg
 prompt.txt
+
+# lite-mode local database
+wire.db
+services/api/wire.db

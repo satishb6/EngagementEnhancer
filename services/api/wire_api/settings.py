@@ -10,15 +10,27 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     wire_env: str = "dev"
-    database_url: str = "postgresql+asyncpg://wire:wire@localhost:5432/wire_dev"
-    redis_url: str = "redis://localhost:6379/0"
+    # Lite mode by default: SQLite file + no Redis = zero-infra. Set a
+    # postgresql+asyncpg URL and a redis URL for the scale path.
+    database_url: str = "sqlite+aiosqlite:///./wire.db"
+    redis_url: str = ""
+    # Run beat-style background loops inside the API process. On when Redis
+    # is absent; the docker-compose scale path sets EMBEDDED_WORKER=0 and
+    # runs Celery instead.
+    embedded_worker: bool = True
     secret_key: str = "dev-secret-change-me"
     api_base_url: str = "http://localhost:8000"
 
-    # provider keys (platform cloud tier)
+    # provider keys (platform tier — ALL optional; users can instead paste
+    # their own keys in the Studio engine panel, browser-side only)
     anthropic_api_key: str = ""
     openai_api_key: str = ""
-    google_api_key: str = ""
+    google_api_key: str = ""      # Gemini: free tier for text AND embeddings
+    groq_api_key: str = ""        # free tier, fast — the recommended first key
+    openrouter_api_key: str = ""  # gives access to many :free models
+    deepseek_api_key: str = ""
+    mistral_api_key: str = ""
+    xai_api_key: str = ""
     fal_key: str = ""
     deepgram_api_key: str = ""
 

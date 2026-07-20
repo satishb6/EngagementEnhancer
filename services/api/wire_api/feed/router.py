@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
 from wire_api.auth.deps import DB, CurrentEntitlement, CurrentUser
 from wire_api.learning.taste import apply_swipe
@@ -136,8 +137,11 @@ async def post_swipes(batch: SwipeBatch, user: CurrentUser, session: DB) -> dict
         if feed_item is None:
             continue
 
+        from wire_api.dbcompat import is_postgres
+
+        insert_fn = pg_insert if is_postgres(session) else sqlite_insert
         stmt = (
-            pg_insert(Swipe)
+            insert_fn(Swipe)
             .values(
                 id=uuid7(), user_id=user.id, feed_item_id=feed_item.id,
                 direction=s.direction, dwell_ms=s.dwell_ms,

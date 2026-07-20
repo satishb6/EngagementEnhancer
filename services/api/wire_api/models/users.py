@@ -20,10 +20,9 @@ from sqlalchemy import (
     String,
     Text,
 )
-from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from wire_api.models.base import Base, PKMixin, TimestampMixin
+from wire_api.models.base import Base, GUID, JSONField, PKMixin, TimestampMixin, TZDateTime
 
 
 class Tier(enum.StrEnum):
@@ -56,7 +55,7 @@ class Entitlement(Base, PKMixin, TimestampMixin):
     __tablename__ = "entitlement"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("app_user.id", ondelete="RESTRICT"),
+        GUID, ForeignKey("app_user.id", ondelete="RESTRICT"),
         unique=True, nullable=False,
     )
     tier: Mapped[Tier] = mapped_column(Enum(Tier, native_enum=False, length=16), default=Tier.FREE)
@@ -65,7 +64,7 @@ class Entitlement(Base, PKMixin, TimestampMixin):
     variant_count: Mapped[int] = mapped_column(Integer, default=1)
     can_publish: Mapped[bool] = mapped_column(Boolean, default=False)
     can_video: Mapped[bool] = mapped_column(Boolean, default=False)
-    period_reset_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    period_reset_at: Mapped[datetime | None] = mapped_column(TZDateTime())
     stripe_customer_id: Mapped[str] = mapped_column(String(64), default="")
     stripe_subscription_id: Mapped[str] = mapped_column(String(64), default="")
 
@@ -93,13 +92,13 @@ class CreditLedger(Base, PKMixin, TimestampMixin):
     __tablename__ = "credit_ledger"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("app_user.id", ondelete="RESTRICT"), nullable=False
+        GUID, ForeignKey("app_user.id", ondelete="RESTRICT"), nullable=False
     )
     delta_credits: Mapped[int] = mapped_column(BigInteger, nullable=False)
     reason: Mapped[LedgerReason] = mapped_column(
         Enum(LedgerReason, native_enum=False, length=24), nullable=False
     )
-    job_id: Mapped[uuid.UUID | None] = mapped_column(PGUUID(as_uuid=True))
+    job_id: Mapped[uuid.UUID | None] = mapped_column(GUID)
     idempotency_key: Mapped[str | None] = mapped_column(String(128), unique=True)
     note: Mapped[str] = mapped_column(Text, default="")
 
@@ -113,14 +112,14 @@ class ByokCredential(Base, PKMixin, TimestampMixin):
     __tablename__ = "byok_credential"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("app_user.id", ondelete="RESTRICT"), nullable=False
+        GUID, ForeignKey("app_user.id", ondelete="RESTRICT"), nullable=False
     )
     provider: Mapped[str] = mapped_column(String(40), nullable=False)
     # Fernet-encrypted key. Never logged, never returned to any client.
     encrypted_key: Mapped[str] = mapped_column(Text, nullable=False)
     daily_cap_cents: Mapped[int] = mapped_column(Integer, default=500)
     spent_today_cents: Mapped[int] = mapped_column(Integer, default=0)
-    spent_reset_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    spent_reset_at: Mapped[datetime | None] = mapped_column(TZDateTime())
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     __table_args__ = (

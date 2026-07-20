@@ -10,8 +10,8 @@ at 100%.
 from datetime import UTC, datetime
 
 import httpx
-import redis.asyncio as aioredis
 
+from wire_api.bus import Counters
 from wire_api.ingestion.base import FetchedItem, FetchResult
 from wire_api.logging import get_logger
 from wire_api.models import Source
@@ -34,17 +34,16 @@ class YouTubeQuotaExceeded(RuntimeError):
 
 
 class YouTubeQuota:
-    """Redis-backed daily unit counter, shared across all workers."""
+    """Daily unit counter — Redis-backed when available, in-memory in lite mode."""
 
-    def __init__(self, redis: aioredis.Redis) -> None:
-        self._redis = redis
+    def __init__(self, counters: Counters) -> None:
+        self._counters = counters
 
     def _key(self) -> str:
         return QUOTA_KEY_FMT.format(date=datetime.now(UTC).strftime("%Y-%m-%d"))
 
     async def consumed(self) -> int:
-        value = await self._redis.get(self._key())
-        return int(value or 0)
+        return await self._counters.get(self._key())
 
     async def charge(self, units: int) -> int:
         """Charge units, or raise if the budget doesn't allow it."""
@@ -60,11 +59,7 @@ class YouTubeQuota:
                 f"YouTube quota at {used}/{cap} units; refusing a {units}-unit call at the "
                 f"{int(REFUSE_AT * 100)}% safety line."
             )
-        pipe = self._redis.pipeline()
-        pipe.incrby(self._key(), units)
-        pipe.expire(self._key(), 60 * 60 * 26)
-        results = await pipe.execute()
-        return int(results[0])
+        return await self._counters.incr(self._key(), units, ttl_s=60 * 60 * 26)
 
 
 class YouTubeAdapter:

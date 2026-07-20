@@ -17,7 +17,7 @@ from wire_api.logging import get_logger
 from wire_api.models import RawItem, Source, SourceKind
 from wire_api.models.base import utcnow
 from wire_api.models.tracing import Stage
-from wire_api.tracing.emit import get_redis
+from wire_api.bus import get_counters
 from wire_api.tracing.traced import traced_span
 
 log = get_logger(__name__)
@@ -31,7 +31,7 @@ def build_adapters() -> dict[SourceKind, SourceAdapter]:
     return {
         SourceKind.RSS: RSSAdapter(),
         SourceKind.REDDIT: RedditAdapter(),
-        SourceKind.YOUTUBE: YouTubeAdapter(YouTubeQuota(get_redis())),
+        SourceKind.YOUTUBE: YouTubeAdapter(YouTubeQuota(get_counters())),
         SourceKind.NEWSAPI: NewsAPIAdapter(),
         SourceKind.WEB: WebAdapter(),
     }

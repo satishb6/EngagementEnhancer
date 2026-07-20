@@ -6,17 +6,15 @@ from datetime import timedelta
 from typing import Any
 
 import orjson
-import sqlalchemy as sa
 from fastapi import APIRouter, Depends, Query
 from sse_starlette.sse import EventSourceResponse
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from wire_api.db import get_session
 from wire_api.models import PipelineEvent
 from wire_api.models.base import utcnow
 from wire_api.models.tracing import EventStatus, Stage
-from wire_api.tracing.emit import CHANNEL, get_redis
 
 router = APIRouter(prefix="/events", tags=["tracing"])
 
@@ -75,26 +73,22 @@ async def stream(
             except ValueError:
                 pass
 
-        pubsub = get_redis().pubsub()
-        await pubsub.subscribe(CHANNEL)
-        try:
+        from wire_api.bus import get_bus
+
+        async with get_bus().listen() as queue:
             while True:
-                msg = await pubsub.get_message(ignore_subscribe_messages=True, timeout=15.0)
-                if msg is None:
+                try:
+                    raw = await asyncio.wait_for(queue.get(), timeout=15.0)
+                except TimeoutError:
                     yield {"event": "ping", "data": "{}"}
                     continue
-                data = orjson.loads(msg["data"])
+                data = orjson.loads(raw)
                 if stage and data.get("stage") != stage:
                     continue
                 if user_id and data.get("user_id") != user_id:
                     continue
                 yield {"id": data["id"], "event": "pipeline",
                        "data": orjson.dumps(data).decode()}
-        except asyncio.CancelledError:
-            raise
-        finally:
-            await pubsub.unsubscribe(CHANNEL)
-            await pubsub.aclose()
 
     return EventSourceResponse(generator())
 
@@ -108,41 +102,56 @@ async def summary(
     window. The Wire Room's meters read from here, never the raw log."""
     since = utcnow() - timedelta(minutes=window_minutes)
 
-    q = (
-        select(
-            PipelineEvent.stage,
-            func.count().label("events"),
-            func.count().filter(PipelineEvent.status == EventStatus.FAILED).label("failures"),
-            func.percentile_cont(0.5).within_group(PipelineEvent.duration_ms).label("p50"),
-            func.percentile_cont(0.95).within_group(PipelineEvent.duration_ms).label("p95"),
+    # portable path: load the window's (stage, status, duration, cost) tuples
+    # and aggregate in Python — correct on both PG and SQLite, and the window
+    # is bounded so the row count stays small.
+    rows = (
+        await session.execute(
+            select(
+                PipelineEvent.stage,
+                PipelineEvent.status,
+                PipelineEvent.duration_ms,
+                PipelineEvent.payload,
+            )
+            .where(PipelineEvent.created_at >= since)
+            .where(PipelineEvent.status.in_([EventStatus.SUCCEEDED, EventStatus.FAILED]))
         )
-        .where(PipelineEvent.created_at >= since)
-        .where(PipelineEvent.status.in_([EventStatus.SUCCEEDED, EventStatus.FAILED]))
-        .group_by(PipelineEvent.stage)
-    )
-    stages: dict[str, dict[str, Any]] = {}
-    for row in (await session.execute(q)).all():
-        stages[row.stage.value] = {
-            "events": row.events,
-            "failures": row.failures,
-            "error_rate": (row.failures / row.events) if row.events else 0.0,
-            "p50_ms": float(row.p50) if row.p50 is not None else None,
-            "p95_ms": float(row.p95) if row.p95 is not None else None,
-            "cost_cents": 0.0,
-        }
+    ).all()
 
-    cost_q = (
-        select(
-            PipelineEvent.stage,
-            func.sum(sa.cast(PipelineEvent.payload["cost_cents"].astext, sa.Float)),
-        )
-        .where(PipelineEvent.created_at >= since)
-        .where(PipelineEvent.payload.has_key("cost_cents"))
-        .group_by(PipelineEvent.stage)
-    )
-    for stage_val, cost in (await session.execute(cost_q)).all():
-        if stage_val.value in stages and cost is not None:
-            stages[stage_val.value]["cost_cents"] = float(cost)
+    import statistics
+
+    grouped: dict[str, dict[str, Any]] = {}
+    for stage_val, status_val, duration, payload in rows:
+        g = grouped.setdefault(stage_val.value, {"durations": [], "failures": 0,
+                                                 "events": 0, "cost": 0.0})
+        g["events"] += 1
+        if status_val == EventStatus.FAILED:
+            g["failures"] += 1
+        if duration is not None:
+            g["durations"].append(float(duration))
+        if isinstance(payload, dict) and payload.get("cost_cents") is not None:
+            try:
+                g["cost"] += float(payload["cost_cents"])
+            except (TypeError, ValueError):
+                pass
+
+    def _pct(values: list[float], q: float) -> float | None:
+        if not values:
+            return None
+        values = sorted(values)
+        idx = min(int(q * (len(values) - 1)), len(values) - 1)
+        return values[idx]
+
+    stages: dict[str, dict[str, Any]] = {}
+    for stage_name, g in grouped.items():
+        stages[stage_name] = {
+            "events": g["events"],
+            "failures": g["failures"],
+            "error_rate": g["failures"] / g["events"] if g["events"] else 0.0,
+            "p50_ms": statistics.median(g["durations"]) if g["durations"] else None,
+            "p95_ms": _pct(g["durations"], 0.95),
+            "cost_cents": g["cost"],
+        }
 
     return {"window_minutes": window_minutes, "stages": stages, "generated_at": utcnow().isoformat()}
 

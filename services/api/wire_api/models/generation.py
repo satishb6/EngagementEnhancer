@@ -15,11 +15,9 @@ from sqlalchemy import (
     Text,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from wire_api.models.base import Base, PKMixin, TimestampMixin
+from wire_api.models.base import Base, GUID, JSONField, PKMixin, TimestampMixin, TZDateTime
 
 
 class JobState(enum.StrEnum):
@@ -49,10 +47,10 @@ class GenerationJob(Base, PKMixin, TimestampMixin):
     __tablename__ = "generation_job"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("app_user.id", ondelete="RESTRICT"), nullable=False
+        GUID, ForeignKey("app_user.id", ondelete="RESTRICT"), nullable=False
     )
     take_id: Mapped[uuid.UUID | None] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("take.id", ondelete="SET NULL")
+        GUID, ForeignKey("take.id", ondelete="SET NULL")
     )
     state: Mapped[JobState] = mapped_column(
         Enum(JobState, native_enum=False, length=12), default=JobState.QUEUED
@@ -75,10 +73,10 @@ class GenerationJob(Base, PKMixin, TimestampMixin):
     # set only when a request handler initiated this job; the tier gate
     # rejects VIDEO jobs where this is false
     user_initiated: Mapped[bool] = mapped_column(nullable=False, default=False)
-    params: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
-    error: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
-    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    params: Mapped[dict[str, Any]] = mapped_column(JSONField, default=dict)
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSONField)
+    started_at: Mapped[datetime | None] = mapped_column(TZDateTime())
+    finished_at: Mapped[datetime | None] = mapped_column(TZDateTime())
 
     __table_args__ = (
         # hot path: running jobs
@@ -94,10 +92,10 @@ class Artifact(Base, PKMixin, TimestampMixin):
     __tablename__ = "artifact"
 
     job_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("generation_job.id", ondelete="RESTRICT"), nullable=False
+        GUID, ForeignKey("generation_job.id", ondelete="RESTRICT"), nullable=False
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("app_user.id", ondelete="RESTRICT"), nullable=False
+        GUID, ForeignKey("app_user.id", ondelete="RESTRICT"), nullable=False
     )
     content_type: Mapped[ContentType] = mapped_column(
         Enum(ContentType, native_enum=False, length=16), nullable=False
@@ -109,9 +107,9 @@ class Artifact(Base, PKMixin, TimestampMixin):
     width: Mapped[int | None] = mapped_column(Integer)
     height: Mapped[int | None] = mapped_column(Integer)
     duration_ms: Mapped[int | None] = mapped_column(Integer)
-    meta: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    meta: Mapped[dict[str, Any]] = mapped_column(JSONField, default=dict)
     # TTL by tier: free 48h, paid 30d, then cold storage
-    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[datetime | None] = mapped_column(TZDateTime())
     cold_stored: Mapped[bool] = mapped_column(default=False)
 
     __table_args__ = (

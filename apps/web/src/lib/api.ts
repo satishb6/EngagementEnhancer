@@ -30,11 +30,13 @@ async function request<T>(
   schema: z.ZodType<T>,
   body?: unknown,
 ): Promise<T> {
+  const { engineHeaders } = await import("./engine");
   const res = await fetch(`${BASE}${path}`, {
     method,
     headers: {
       "Content-Type": "application/json",
       ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
+      ...engineHeaders(),
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });

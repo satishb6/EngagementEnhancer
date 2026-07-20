@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from wire_api.agents.prompts import EDITOR
 from wire_api.db import session_scope
+from wire_api.dbcompat import knn
 from wire_api.logging import get_logger
 from wire_api.models import (
     Briefing,
@@ -108,22 +109,15 @@ async def cluster_new_items(session: AsyncSession) -> int:
     async with traced_span(session, Stage.CLUSTER, entity_type="raw_item_batch") as span:
         for item in items:
             vec = np.asarray(item.embedding, dtype=np.float64)
-            # nearest recent centroid via pgvector cosine distance
-            nearest = (
-                await session.execute(
-                    select(
-                        Cluster,
-                        Cluster.centroid.cosine_distance(item.embedding).label("dist"),
-                    )
-                    .where(Cluster.last_grown_at >= window_start)
-                    .order_by(Cluster.centroid.cosine_distance(item.embedding))
-                    .limit(1)
-                )
-            ).first()
+            # nearest recent centroid — indexed SQL on PG, numpy on SQLite
+            neighbours = await knn(
+                session, Cluster, Cluster.centroid, list(vec),
+                limit=1,
+                base_query=select(Cluster).where(Cluster.last_grown_at >= window_start),
+            )
 
-            if nearest is not None and (1.0 - float(nearest.dist)) >= threshold:
-                cluster: Cluster = nearest.Cluster
-                similarity = 1.0 - float(nearest.dist)
+            if neighbours and neighbours[0][1] >= threshold:
+                cluster, similarity = neighbours[0]
                 # incremental centroid update
                 centroid = np.asarray(cluster.centroid, dtype=np.float64)
                 n = cluster.member_count
