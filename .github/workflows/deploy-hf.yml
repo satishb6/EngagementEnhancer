@@ -1,0 +1,33 @@
+name: deploy-backend-to-hf
+
+# Every push to main redeploys the backend to the Hugging Face Space.
+# Needs two repository secrets (Settings → Secrets and variables → Actions):
+#   HF_TOKEN  — a Hugging Face access token with "Write" permission
+#   HF_SPACE  — the space path, e.g. satishb6/wire-backend
+# Until those are set, this workflow just skips politely.
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push services/api to the Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: ${{ secrets.HF_SPACE }}
+        run: |
+          if [ -z "$HF_TOKEN" ] || [ -z "$HF_SPACE" ]; then
+            echo "HF_TOKEN / HF_SPACE secrets not set yet — skipping deploy."
+            exit 0
+          fi
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git subtree split --prefix services/api -b hf-deploy
+          git push -f "https://oauth:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}" hf-deploy:main
