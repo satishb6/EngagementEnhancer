@@ -1,0 +1,110 @@
+# Production compose — one VPS runs the whole platform.
+# Usage (from the repo root):
+#   docker compose -f infra/docker-compose.prod.yml --env-file .env.production up -d --build
+name: wire-prod
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-wire}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env.production}
+      POSTGRES_DB: ${POSTGRES_DB:-wire}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-wire}"]
+      interval: 10s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/api.Dockerfile
+    restart: unless-stopped
+    env_file: ../.env.production
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-wire}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-wire}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - artifacts:/app/storage
+
+  migrate:
+    build:
+      context: ..
+      dockerfile: infra/api.Dockerfile
+    command: ["alembic", "upgrade", "head"]
+    env_file: ../.env.production
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-wire}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-wire}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  worker:
+    build:
+      context: ..
+      dockerfile: infra/api.Dockerfile
+    command:
+      ["celery", "-A", "wire_api.worker.celery_app", "worker", "--beat",
+       "--loglevel=info", "--concurrency=4"]
+    restart: unless-stopped
+    env_file: ../.env.production
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-wire}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-wire}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - artifacts:/app/storage
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/web.Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://${WIRE_API_DOMAIN}
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      WIRE_DOMAIN: ${WIRE_DOMAIN:?set in .env.production}
+      WIRE_API_DOMAIN: ${WIRE_API_DOMAIN:?set in .env.production}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on:
+      - web
+      - api
+
+volumes:
+  pgdata:
+  redisdata:
+  artifacts:
+  caddydata:
+  caddyconfig:

@@ -1,0 +1,18 @@
+# Caddy terminates TLS automatically (Let's Encrypt) for both hostnames.
+# Set WIRE_DOMAIN and WIRE_API_DOMAIN in .env.production.
+
+{$WIRE_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy web:3000
+}
+
+{$WIRE_API_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy api:8000
+
+	# SSE needs buffering off; Caddy streams by default, this makes it explicit
+	@sse path /events/stream
+	reverse_proxy @sse api:8000 {
+		flush_interval -1
+	}
+}

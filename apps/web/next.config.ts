@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   transpilePackages: ["three"],
   eslint: { ignoreDuringBuilds: false },
   async rewrites() {
