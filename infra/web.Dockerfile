@@ -15,6 +15,7 @@ COPY apps/web/ apps/web/
 COPY packages/ packages/
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV BUILD_STANDALONE=1
 RUN cd apps/web && pnpm build
 
 FROM node:22-alpine AS run
