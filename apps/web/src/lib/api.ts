@@ -24,13 +24,34 @@ export class ApiError extends Error {
   }
 }
 
+/** No sign-in wall: sessions are created invisibly, and if the free-tier
+ * backend restarted (wiping its database), a stale token self-heals into a
+ * fresh guest session instead of showing an error. */
+let guestPromise: Promise<void> | null = null;
+
+export async function ensureGuest(): Promise<void> {
+  if (getToken()) return;
+  guestPromise ??= (async () => {
+    const res = await fetch(`${BASE}/auth/guest`, { method: "POST" });
+    if (res.ok) {
+      const data = (await res.json()) as { token: string };
+      setToken(data.token);
+    }
+  })().finally(() => {
+    guestPromise = null;
+  });
+  await guestPromise;
+}
+
 async function request<T>(
   method: string,
   path: string,
   schema: z.ZodType<T>,
   body?: unknown,
+  retried = false,
 ): Promise<T> {
   const { engineHeaders } = await import("./engine");
+  if (!path.startsWith("/auth")) await ensureGuest();
   const res = await fetch(`${BASE}${path}`, {
     method,
     headers: {
@@ -40,6 +61,11 @@ async function request<T>(
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
+  if (res.status === 401 && !retried && !path.startsWith("/auth")) {
+    setToken(null);
+    await ensureGuest();
+    return request(method, path, schema, body, true);
+  }
   if (!res.ok) {
     let detail = res.statusText;
     try {

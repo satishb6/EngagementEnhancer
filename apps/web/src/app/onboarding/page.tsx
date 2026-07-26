@@ -61,8 +61,8 @@ export default function Onboarding() {
 
   const finish = async () => {
     if (!getToken()) {
-      router.push("/signup");
-      return;
+      const { ensureGuest } = await import("@/lib/api");
+      await ensureGuest();
     }
     // persist choices: domains become live RSS sources, topics tilt ranking
     try {

@@ -48,6 +48,35 @@ async def signup(body: Credentials, session: DB) -> TokenResponse:
     )
 
 
+@router.post("/guest", status_code=status.HTTP_201_CREATED)
+async def guest(session: DB) -> TokenResponse:
+    """Anonymous-first entry: one click of nothing. Creates a full-featured
+    guest account so there is no sign-in wall. Guests run on the BYOK tier
+    (no platform credits involved) — the demo engine plus any keys they add
+    in Studio → Engine."""
+    import secrets
+
+    suffix = secrets.token_hex(6)
+    user = User(
+        email=f"guest-{suffix}@guest.wire",
+        password_hash=hash_password(secrets.token_urlsafe(24)),
+        display_name=f"Guest {suffix[:4]}",
+    )
+    session.add(user)
+    await session.flush()
+    session.add(Entitlement(
+        user_id=user.id, tier=Tier.BYOK,
+        briefings_per_day=50, selections_per_day=999, variant_count=3,
+        can_publish=True, can_video=True,
+    ))
+    session.add(UserProtocol(user_id=user.id, name="My wire", is_default=True))
+    await session.commit()
+    return TokenResponse(
+        token=create_token(user.id), user_id=str(user.id), email=user.email,
+        display_name=user.display_name, tier=Tier.BYOK.value,
+    )
+
+
 @router.post("/login")
 async def login(body: Credentials, session: DB) -> TokenResponse:
     user = (

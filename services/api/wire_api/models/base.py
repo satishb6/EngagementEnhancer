@@ -39,12 +39,26 @@ JSONField = JSON().with_variant(JSONB(), "postgresql")
 
 
 class TZDateTime(TypeDecorator[datetime]):
-    """Timestamps come back UTC-aware on every backend. SQLite stores naive
-    datetimes; this re-attaches UTC on read so date math never mixes
-    naive and aware values."""
+    """Timestamps are UTC-aware in Python on every backend.
+
+    SQLite stores datetimes as ISO strings and compares them AS STRINGS, so
+    aware ("…+00:00") and naive values must never mix in storage — a query
+    parameter with an offset suffix compares wrongly against naive rows
+    (this once expired every briefing a day early). Fix: on non-Postgres
+    backends every bound value is normalised to naive UTC, and every value
+    read back gets UTC re-attached."""
 
     impl = DateTime(timezone=True)
     cache_ok = True
+
+    def process_bind_param(self, value: Any, dialect: Any) -> Any:
+        if (
+            value is not None
+            and dialect.name != "postgresql"
+            and getattr(value, "tzinfo", None) is not None
+        ):
+            return value.astimezone(UTC).replace(tzinfo=None)
+        return value
 
     def process_result_value(self, value: Any, dialect: Any) -> Any:
         if value is not None and getattr(value, "tzinfo", None) is None:

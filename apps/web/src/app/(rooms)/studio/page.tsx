@@ -210,11 +210,14 @@ export default function StudioPage() {
         <ChromeButton
           onClick={() => {
             setToken(null);
-            router.push("/signin");
+            router.push("/");
           }}
         >
-          Sign out
+          Start a fresh session
         </ChromeButton>
+        <p className="mt-2 text-label text-silver-dim">
+          Clears this browser&apos;s session and walks you back in as a new guest.
+        </p>
       </section>
     </div>
   );

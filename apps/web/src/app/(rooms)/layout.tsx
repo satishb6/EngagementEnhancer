@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
-import { getToken } from "@/lib/api";
+import { ensureGuest, getToken } from "@/lib/api";
 import { springs, Wire } from "@/components/ui/primitives";
 import { WireTicker } from "@/components/shell/WireTicker";
 
@@ -28,7 +28,8 @@ export default function RoomsLayout({
   const router = useRouter();
 
   useEffect(() => {
-    if (!getToken()) router.replace("/signin");
+    // no sign-in wall — a missing session becomes a guest session
+    if (!getToken()) void ensureGuest();
   }, [router]);
 
   return (
