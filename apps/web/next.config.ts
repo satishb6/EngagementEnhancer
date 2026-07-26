@@ -7,7 +7,11 @@ const nextConfig: NextConfig = {
   transpilePackages: ["three"],
   eslint: { ignoreDuringBuilds: false },
   async rewrites() {
-    const api = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+    // trailing-slash-proof: "…onrender.com/" pasted into the env var must
+    // not become "…onrender.com//health"
+    const api = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000")
+      .trim()
+      .replace(/\/+$/, "");
     return [{ source: "/api/wire/:path*", destination: `${api}/:path*` }];
   },
 };
