@@ -1,0 +1,11 @@
+# Render.com blueprint — free-tier backend deploy.
+# In Render: New + → Blueprint → pick this repo → it reads this file.
+# (Or create the Web Service manually; see docs/GETTING-STARTED-SIMPLE.md.)
+services:
+  - type: web
+    name: wire-backend
+    runtime: docker
+    rootDir: services/api
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
